@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nat Miletic's Windows 95 Portfolio Website</title>
+  <meta name="description" content="Step back into 1995 — Nat Miletic's interactive portfolio built as a fully functional Windows 95 desktop simulation. Explore files, open windows, and discover the story of a Calgary web designer and founder of Clio Websites, all wrapped in glorious retro UI.">
+  <meta property="og:title" content="Nat Miletic's Windows 95 Portfolio Website">
+  <meta property="og:description" content="Step back into 1995 — an interactive portfolio built as a fully functional Windows 95 desktop simulation. Explore files, open windows, and discover the story of a Calgary web designer.">
+  <meta property="og:image" content="img/social-preview.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nat Miletic's Windows 95 Portfolio Website">
+  <meta name="twitter:description" content="Step back into 1995 — an interactive portfolio built as a fully functional Windows 95 desktop simulation.">
+  <meta name="twitter:image" content="img/social-preview.jpg">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/desktop.css">
+  <link rel="stylesheet" href="css/taskbar.css">
+  <link rel="stylesheet" href="css/window.css">
+  <link rel="stylesheet" href="css/widgets.css">
+  <link rel="stylesheet" href="css/apps.css">
+  <link rel="stylesheet" href="css/winamp.css">
+
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     SPLASH / BOOT SCREEN
+     Commented out for testing — uncomment for production:
+
+<div id="boot-screen">
+  <video id="boot-video" playsinline muted autoplay>
+    <source src="videos/mmjdxbwbsb3b1.mp4" type="video/mp4">
+  </video>
+</div>
+
+     ════════════════════════════════ -->
+
+<!-- ════════════════════════════════
+     DESKTOP
+     ════════════════════════════════ -->
+<div id="desktop" onclick="desktopClick(event)" oncontextmenu="showContextMenu(event)">
+
+  <div id="desktop-icons">
+
+  <!-- My Computer icon -->
+  <div class="desktop-icon" id="icon-computer" style="top:16px;left:14px;"
+       onclick="selectIcon(event,'icon-computer')" ondblclick="openWindow('computer')">
+    <img src="img/my-computer.png" alt="My Computer">
+    <span class="icon-label">My Computer</span>
+  </div>
+
+  <!-- My Files icon -->
+  <div class="desktop-icon" id="icon-files" style="top:110px;left:14px;"
+       draggable="true"
+       ondragstart="iconDragStart(event,'icon-files','My Files','img/folder.png')"
+       onclick="selectIcon(event,'icon-files')" ondblclick="openWindow('files')">
+    <img src="img/folder.png" alt="My Files">
+    <span class="icon-label">My Files</span>
+  </div>
+
+  <!-- Internet Explorer icon -->
+  <div class="desktop-icon" id="icon-ie" style="top:204px;left:14px;"
+       draggable="true"
+       ondragstart="iconDragStart(event,'icon-ie','Internet Explorer','img/internet-explorer.png')"
+       onclick="selectIcon(event,'icon-ie')" ondblclick="openWindow('ie')">
+    <img src="img/internet-explorer.png" alt="Internet Explorer">
+    <span class="icon-label">Internet Explorer</span>
+  </div>
+
+  <!-- My Briefcase icon -->
+  <div class="desktop-icon" id="icon-briefcase" style="top:298px;left:14px;"
+       draggable="true"
+       ondragstart="iconDragStart(event,'icon-briefcase','My Briefcase','img/briefcase.png')"
+       onclick="selectIcon(event,'icon-briefcase')" ondblclick="openWindow('briefcase')">
+    <img src="img/briefcase.png" alt="My Briefcase">
+    <span class="icon-label">My Briefcase</span>
+  </div>
+
+  <!-- Nat Miletic Bio icon -->
+  <div class="desktop-icon" id="icon-bio" style="top:392px;left:14px;"
+       draggable="true"
+       ondragstart="iconDragStart(event,'icon-bio','Nat Miletic Bio','img/notepad.png')"
+       onclick="selectIcon(event,'icon-bio')" ondblclick="openWindow('bio')">
+    <img src="img/notepad.png" alt="Nat Miletic Bio">
+    <span class="icon-label">Nat Miletic Bio</span>
+  </div>
+
+  <!-- LinkedIn icon -->
+  <div class="desktop-icon" id="icon-linkedin" style="top:486px;left:14px;"
+       draggable="true"
+       ondragstart="iconDragStart(event,'icon-linkedin','LinkedIn','img/linkedin.png')"
+       onclick="selectIcon(event,'icon-linkedin')" ondblclick="window.open('https://linkedin.com/in/natmiletic','_blank')">
+    <img src="img/linkedin.png" alt="LinkedIn">
+    <span class="icon-label">LinkedIn</span>
+  </div>
+
+  <!-- Recycle Bin icon -->
+  <div class="desktop-icon" id="icon-recycle" style="top:580px;left:14px;"
+       onclick="selectIcon(event,'icon-recycle')" ondblclick="openWindow('recycle')"
+       ondragover="recycleDragOver(event)" ondragleave="recycleDragLeave(event)" ondrop="recycleDrop(event)">
+    <img src="img/recycle-bin.png" alt="Recycle Bin">
+    <span class="icon-label">Recycle Bin</span>
+  </div>
+
+  </div><!-- /#desktop-icons -->
+
+</div>
+
+<!-- ════════════════════════════════
+     TASKBAR
+     ════════════════════════════════ -->
+<div id="taskbar">
+
+  <button id="start-btn" onclick="toggleStartMenu(event)"></button>
+
+  <div class="taskbar-sep"></div>
+  <div id="taskbar-windows"></div>
+  <div class="taskbar-sep"></div>
+
+  <div id="systray">
+    <img src="img/speaker.png" alt="Volume" id="systray-speaker">
+    <span id="clock">12:00 PM</span>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════
+     START MENU
+     ════════════════════════════════ -->
+<div id="start-menu">
+
+  <!-- Mobile drill-down panel (hidden by default, shown via JS) -->
+  <div id="start-submenu-panel">
+    <button id="ssm-back"><span style="font-size:10px;line-height:1;">&#9668;</span> Back</button>
+    <div id="ssm-items"></div>
+  </div>
+
+  <div class="start-menu-sidebar">
+    <span><strong>Windows</strong><span class="sidebar-95">95</span></span>
+  </div>
+  <div class="start-menu-items">
+
+    <div class="start-menu-item has-submenu">
+      <img src="img/programs.png" alt="">
+      <span class="item-text">Programs</span>
+      <span style="margin-left:auto;font-size:10px;color:#000;line-height:1;">&#9658;</span>
+      <div class="start-submenu">
+        <div class="start-submenu-item has-submenu">
+          <img src="img/programs.png" alt="">
+          <span class="item-text">Accessories</span>
+          <span style="margin-left:auto;font-size:8px;color:#000;line-height:1;">&#9658;</span>
+          <div class="start-submenu">
+            <div class="start-submenu-item has-submenu">
+              <img src="img/programs.png" alt="">
+              <span class="item-text">Games</span>
+              <span style="margin-left:auto;font-size:8px;color:#000;line-height:1;">&#9658;</span>
+              <div class="start-submenu">
+                <div class="start-submenu-item" onclick="openWindow('minesweeper');closeStartMenu()">
+                  <img src="img/minesweeper.png" alt="">
+                  <span class="item-text">Minesweeper</span>
+                </div>
+              </div>
+            </div>
+            <div class="start-submenu-item has-submenu">
+              <img src="img/programs.png" alt="">
+              <span class="item-text">System Tools</span>
+              <span style="margin-left:auto;font-size:8px;color:#000;line-height:1;">&#9658;</span>
+              <div class="start-submenu">
+                <div class="start-submenu-item" onclick="openWindow('defrag');closeStartMenu()">
+                  <img src="img/defrag.png" alt="">
+                  <span class="item-text">Disk Defragmenter</span>
+                </div>
+              </div>
+            </div>
+            <div class="start-submenu-item" onclick="openWindow('paint');closeStartMenu()">
+              <img src="img/paint.png" alt="">
+              <span class="item-text">Paint</span>
+            </div>
+            <div class="start-submenu-item" onclick="openWindow('notepad');closeStartMenu()">
+              <img src="img/notepad2.png" alt="">
+              <span class="item-text">Notepad</span>
+            </div>
+          </div>
+        </div>
+        <div class="start-submenu-item" onclick="openWindow('msdos');closeStartMenu()">
+          <img src="img/msdos-icon.png" alt="">
+          <span class="item-text">MS-DOS Prompt</span>
+        </div>
+        <div class="start-submenu-item" onclick="openWindow('ie');closeStartMenu()">
+          <img src="img/internet-explorer.png" alt="">
+          <span class="item-text">Internet Explorer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="start-menu-item" onclick="openWindow('computer');closeStartMenu()">
+      <img src="img/my-computer.png" alt="">
+      <span class="item-text">My Computer</span>
+    </div>
+
+    <div class="start-menu-item" onclick="openWindow('files');closeStartMenu()">
+      <img src="img/folder.png" alt="">
+      <span class="item-text">My Files</span>
+    </div>
+
+    <div class="start-menu-item" onclick="openWindow('notepad');closeStartMenu()">
+      <img src="img/notepad2.png" alt="">
+      <span class="item-text">Notepad</span>
+    </div>
+
+    <div class="start-menu-item" onclick="openWindow('welcome');closeStartMenu()">
+      <img src="img/welcome.png" alt="">
+      <span class="item-text">Welcome</span>
+    </div>
+
+    <div class="start-menu-item" onclick="openWindow('run');closeStartMenu()">
+      <img src="img/run.ico" alt="" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;">
+      <span class="item-text">Run...</span>
+    </div>
+
+    <div class="start-menu-sep"></div>
+
+    <div class="start-menu-item" onclick="showShutdown();closeStartMenu()">
+      <img src="img/shutdown.ico" alt="" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;">
+      <span class="item-text">Shut Down...</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     CONTEXT MENU
+     ════════════════════════════════ -->
+<div id="context-menu">
+  <div class="context-item grayed"><u>A</u>rrange Icons</div>
+  <div class="context-item grayed"><u>L</u>ine Up Icons</div>
+  <div class="context-sep"></div>
+  <div class="context-item" onclick="hideContextMenu()"><u>R</u>efresh</div>
+  <div class="context-sep"></div>
+  <div class="context-item grayed"><u>P</u>roperties</div>
+</div>
+
+
+  <script src="js/state.js"></script>
+  <script src="js/windows.js"></script>
+  <script src="js/taskbar.js"></script>
+  <script src="js/drag-resize.js"></script>
+  <script src="js/winamp.js"></script>
+  <script src="js/apps/explorer.js"></script>
+  <script src="js/apps/paint.js"></script>
+  <script src="js/apps/ie.js"></script>
+  <script src="js/apps/welcome.js"></script>
+  <script src="js/apps/system.js"></script>
+  <script src="js/apps/bio.js"></script>
+  <script src="js/apps/notepad.js"></script>
+  <script src="js/apps/msdos.js"></script>
+  <script src="js/apps/minesweeper.js"></script>
+  <script src="js/apps/defrag.js"></script>
+  <script src="js/apps/registry.js"></script>
+  <script src="js/desktop.js"></script>
+  <script src="js/dialog.js"></script>
+  <script src="js/boot.js"></script>
+  <script src="js/init.js"></script>
+  <script src="js/screensaver.js"></script>
+
+  <!-- Screensaver overlay -->
+  <div id="screensaver" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;cursor:none;">
+    <video id="screensaver-video" src="videos/screensaver-flying-windows.mp4" loop muted playsinline preload="none"
+           style="width:100%;height:100%;object-fit:cover;"></video>
+  </div>
+</body>
+</html>

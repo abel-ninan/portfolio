@@ -1,0 +1,292 @@
+/* ════════════════════════════════
+   TASKBAR
+   ════════════════════════════════ */
+#taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background-color: var(--c-gray-200);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  align-items: center;
+  padding: 4px 4px;
+  gap: 4px;
+  z-index: 10000;
+}
+
+/* Start button */
+#start-btn {
+  width: 87px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+  background-image: url(../img/start-btn.png);
+  background-size: 87px 32px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+#start-btn.pressed {
+  filter: brightness(0.85);
+}
+
+/* Taskbar separator */
+.taskbar-sep {
+  width: 4px;
+  height: 28px;
+  box-shadow: inset -1px 0 0 var(--c-white), inset 1px 0 0 var(--c-gray-300);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Taskbar window buttons */
+#taskbar-windows {
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  overflow: hidden;
+  min-width: 0;
+}
+.taskbar-btn {
+  height: 28px;
+  padding: 0 6px;
+  width: 160px;
+  min-width: 0;
+  background-color: var(--c-gray-200);
+  box-shadow: var(--shadow-btn);
+  border: none;
+  cursor: pointer;
+  font-weight: normal;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 1;
+  text-align: left;
+  font-size: 13px;
+  color: #000000;
+  -webkit-text-fill-color: #000000;
+}
+.taskbar-btn.active {
+  box-shadow: var(--shadow-btn-active);
+  background-color: var(--c-material);
+  background-image: repeating-conic-gradient(var(--c-material) 0% 25%, #ffffff 0% 50%);
+  background-size: 2px 2px;
+}
+.taskbar-btn img {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+.taskbar-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Systray speaker icon */
+#systray-speaker {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+
+/* System tray */
+#systray {
+  height: 32px;
+  padding: 0 8px;
+  box-shadow:
+    inset 1px 1px 0 var(--c-gray-300),
+    inset -1px -1px 0 var(--c-white),
+    inset 2px 2px 0 var(--c-black),
+    inset -2px -2px 0 var(--c-gray-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════
+   START MENU
+   ════════════════════════════════ */
+#start-menu {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  width: 220px;
+  background-color: var(--c-gray-200);
+  box-shadow: var(--shadow-raised), 2px 2px 4px rgba(0,0,0,0.4);
+  display: none;
+  z-index: 20000;
+}
+#start-menu.visible { display: flex; }
+
+.start-menu-sidebar {
+  width: 32px;
+  background: #84888e;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+}
+.start-menu-sidebar > span {
+  color: #d0d0d0;
+  font-size: 18px;
+  font-style: italic;
+  font-family: 'MS Sans Serif', Tahoma, Arial, sans-serif;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 3px;
+  user-select: none;
+}
+.start-menu-sidebar strong {
+  font-weight: bold;
+  color: #ffffff;
+}
+.sidebar-95 {
+  font-weight: 300;
+  color: #b0b0c8;
+}
+
+/* Start menu sprite icons (from win95-icons-sprite.png) */
+.start-sprite-icon {
+  width: 24px;
+  height: 24px;
+  background-image: url(../img/win95-icons-sprite.png);
+  background-size: 215px 140px;
+  flex-shrink: 0;
+  mix-blend-mode: multiply;
+}
+.shutdown-img { background-position: -143px -92px; }
+
+.start-menu-items { flex: 1; padding: 2px 0; }
+
+.start-menu-item {
+  padding: 5px 10px 5px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  position: relative;
+}
+.start-menu-item:hover {
+  background-color: #000080;
+  color: #fff;
+}
+.start-menu-item:hover > span[style] { color: #fff !important; }
+.start-menu-item img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.item-text { flex: 1; }
+.start-menu-sep {
+  height: 1px;
+  background: var(--c-gray-300);
+  margin: 3px 6px;
+  border-bottom: 1px solid var(--c-white);
+}
+
+/* Programs submenu */
+.has-submenu { position: relative; }
+.start-submenu {
+  display: none;
+  position: absolute;
+  left: calc(100% - 5px);
+  top: 0;
+  width: 200px;
+  background-color: var(--c-material);
+  box-shadow: var(--shadow-raised), 2px 2px 4px rgba(0,0,0,0.4);
+  z-index: 20001;
+  padding: 2px 0;
+  color: #000;
+}
+.has-submenu:hover > .start-submenu { display: block; }
+.start-submenu-item {
+  padding: 3px 8px 3px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #000;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+}
+.start-submenu-item:hover {
+  background-color: #000080;
+  color: #fff;
+}
+.start-submenu-item:hover > span[style] { color: #fff !important; }
+.start-submenu-item img {
+  width: 17px;
+  height: 17px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.start-submenu-item .item-text { flex: 1; }
+
+/* ════════════════════════════════
+   MOBILE: suppress iOS sticky-hover submenus
+   (iOS fires :hover on tap, which would show the desktop flyout
+   alongside the panel — force them hidden on mobile always)
+   ════════════════════════════════ */
+@media (max-width: 768px) {
+  .has-submenu > .start-submenu {
+    display: none !important;
+  }
+}
+
+/* ════════════════════════════════
+   MOBILE DRILL-DOWN PANEL
+   Overlays the start menu when a submenu is tapped on mobile.
+   Controlled entirely via JS (classList.add/remove 'visible').
+   ════════════════════════════════ */
+#start-submenu-panel {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: var(--c-gray-200);
+  flex-direction: column;
+}
+#start-submenu-panel.visible {
+  display: flex;
+}
+#ssm-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #000080;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-align: left;
+  width: 100%;
+}
+#ssm-items {
+  flex: 1;
+  overflow-y: auto;
+}

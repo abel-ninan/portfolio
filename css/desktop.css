@@ -1,0 +1,99 @@
+/* ════════════════════════════════
+   DESKTOP
+   ════════════════════════════════ */
+#desktop {
+  width: 100%;
+  height: calc(100vh - 40px);
+  background-color: var(--c-teal);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Desktop Icons wrapper ── */
+#desktop-icons {
+  position: relative; /* icons inside position relative to this, which sits at 0,0 of #desktop */
+}
+
+/* ── Desktop Icons ── */
+.desktop-icon {
+  position: absolute;
+  width: 76px;
+  text-align: center;
+  cursor: url('../img/cursor-default.png') 0 0, default;
+  padding: 4px;
+}
+.desktop-icon.selected .icon-label {
+  background-color: #000080;
+  color: #fff;
+  outline: 1px dotted #fff;
+}
+#icon-recycle.selected .icon-label {
+  background-color: #000080;
+  color: #fff;
+  outline: 1px dotted #fff;
+}
+.desktop-icon img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  margin: 0 auto 3px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.icon-label {
+  color: #fff;
+  font-size: 13px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  text-shadow: 1px 0 #000, -1px 0 #000, 0 1px #000, 0 -1px #000;
+  display: inline-block;
+  padding: 1px 2px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ════════════════════════════════
+   MOBILE: two-column icon grid
+   ════════════════════════════════ */
+@media (max-width: 768px) {
+  #desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(2, 76px);
+    gap: 4px;
+    padding: 8px;
+    align-content: start;
+  }
+  #desktop-icons .desktop-icon {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+  }
+}
+
+/* ════════════════════════════════
+   CONTEXT MENU
+   ════════════════════════════════ */
+#context-menu {
+  position: fixed;
+  background-color: var(--c-gray-200);
+  box-shadow: var(--shadow-raised);
+  display: none;
+  z-index: 50000;
+  min-width: 160px;
+  padding: 2px 0;
+}
+#context-menu.visible { display: block; }
+.context-item {
+  padding: 4px 20px 4px 24px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+}
+.context-item:hover { background-color: #000080; color: #fff; }
+.context-item.grayed { color: var(--c-gray-300); cursor: url('../img/cursor-default.png') 0 0, default; }
+.context-item.grayed:hover { background: none; color: var(--c-gray-300); }
+.context-sep {
+  height: 1px;
+  background: var(--c-gray-300);
+  margin: 3px 4px;
+  border-bottom: 1px solid var(--c-white);
+}

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <!-- player body -->
+  <rect x="3" y="7" width="42" height="34" rx="2" fill="#2a2a32" stroke="#000" stroke-width="1"/>
+  <rect x="3" y="7" width="42" height="2" fill="#54545f"/>
+  <rect x="3" y="7" width="2" height="34" fill="#54545f"/>
+  <!-- titlebar strip -->
+  <rect x="5" y="9" width="38" height="5" fill="#3d3d4f"/>
+  <rect x="5" y="9" width="38" height="1" fill="#5a5a72"/>
+  <!-- LCD screen -->
+  <rect x="6" y="16" width="36" height="13" fill="#000"/>
+  <!-- green time digits -->
+  <g fill="#22d12a">
+    <rect x="8" y="19" width="2" height="7"/>
+    <rect x="8" y="19" width="4" height="2"/>
+    <rect x="8" y="22" width="4" height="2"/>
+    <rect x="10" y="19" width="2" height="7"/>
+    <rect x="15" y="24" width="2" height="2"/>
+    <rect x="20" y="19" width="4" height="2"/>
+    <rect x="22" y="19" width="2" height="7"/>
+    <rect x="20" y="24" width="4" height="2"/>
+  </g>
+  <!-- spectrum bars -->
+  <g>
+    <rect x="29" y="25" width="2" height="3" fill="#1f8f24"/>
+    <rect x="32" y="21" width="2" height="7" fill="#54d72e"/>
+    <rect x="35" y="23" width="2" height="5" fill="#3fc02a"/>
+    <rect x="38" y="19" width="2" height="9" fill="#e7d22a"/>
+  </g>
+  <!-- transport buttons -->
+  <g fill="#9aa0ad">
+    <rect x="7" y="33" width="5" height="4"/>
+    <rect x="14" y="33" width="5" height="4"/>
+    <rect x="21" y="33" width="5" height="4"/>
+    <rect x="28" y="33" width="5" height="4"/>
+    <rect x="35" y="33" width="6" height="4"/>
+  </g>
+  <!-- orange accent (play) -->
+  <polygon points="8,33.5 8,36.5 11,35" fill="#ff9a1e"/>
+</svg>

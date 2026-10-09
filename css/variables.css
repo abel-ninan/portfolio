@@ -1,0 +1,75 @@
+/* ── CSS Custom Properties (React95 original theme) ── */
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+
+  /* React95 original theme colors */
+  --c-material:         #c0c0c0;  /* window / button background */
+  --c-border-lightest:  #ffffff;  /* inner top-left highlight */
+  --c-border-light:     #dfdfdf;  /* outer top-left highlight */
+  --c-border-dark:      #7f7f7f;  /* inner bottom-right shadow */
+  --c-border-darkest:   #000000;  /* outer bottom-right shadow */
+  --c-teal:             #008080;
+  --c-canvas:           #ffffff;
+  --c-header:           #060084;  /* active title bar */
+  --c-header-inactive:  #7f787f;  /* inactive title bar */
+
+  /* Aliases for backward compat */
+  --c-white:    var(--c-border-lightest);
+  --c-black:    var(--c-border-darkest);
+  --c-gray-100: var(--c-border-light);
+  --c-gray-200: var(--c-material);
+  --c-gray-300: var(--c-border-dark);
+
+  /* Window frame — 4-layer bevel, no border needed */
+  --shadow-window-frame:
+    inset -1px -1px 0px #000000,
+    inset  1px  1px 0px #c1c1c1,
+    inset -2px -2px 0px #818181,
+    inset  2px  2px 0px #ffffff;
+  --shadow-window-drop: 4px 4px 10px 0 rgba(0, 0, 0, 0.35);
+
+  /* Button shadow — 4-layer bevel, no border needed */
+  --shadow-btn:
+    inset -1px -1px 0px #000000,
+    inset  1px  1px 0px #ffffff,
+    inset -2px -2px 0px #7f7f7f,
+    inset  2px  2px 0px #dfdfdf;
+  --shadow-btn-active:
+    inset  1px  1px 0px #000000,
+    inset -1px -1px 0px #ffffff,
+    inset  2px  2px 0px #7f7f7f,
+    inset -2px -2px 0px #dfdfdf;
+
+  /* Sunken field — 4-layer inset bevel (Inside/3) */
+  --shadow-input:
+    inset -1px -1px 0px #ffffff,
+    inset  1px  1px 0px #808080,
+    inset -2px -2px 0px #c1c1c1,
+    inset  2px  2px 0px #000000;
+
+  /* Raised panels (taskbar, start menu, dialogs) */
+  --shadow-raised:
+    inset -1px -1px 0px #000000,
+    inset  1px  1px 0px #ffffff,
+    inset -2px -2px 0px #7f7f7f,
+    inset  2px  2px 0px #dfdfdf;
+}
+
+@font-face {
+  font-family: "w95fa";
+  src: url("../fonts/w95fa.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Fixedsys";
+  src: url("../fonts/FSEX300.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "w95fa";
+  src: url("../fonts/w95fa.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
