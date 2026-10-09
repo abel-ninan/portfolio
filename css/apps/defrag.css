@@ -1,0 +1,71 @@
+/* ════════════════════════════════
+   DISK DEFRAGMENTER
+   ════════════════════════════════ */
+.defrag-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.defrag-scroll-row {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #ffffff;
+  border-right: 1px solid #ffffff;
+  background: #000;
+  min-height: 0;
+}
+.defrag-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+.defrag-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 4px;
+  flex-shrink: 0;
+}
+.defrag-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.defrag-status-txt {
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  color: #000;
+}
+.defrag-bar-track {
+  padding: 2px;
+  height: 16px;
+  background: #c0c0c0;
+  box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080;
+  overflow: hidden;
+}
+.defrag-bar-fill {
+  width: 0;
+  height: 12px;
+  background: repeating-linear-gradient(
+    to right,
+    #000080 0px, #000080 8px,
+    #c0c0c0 8px, #c0c0c0 10px
+  );
+  transition: none;
+}
+.defrag-pct {
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  color: #000;
+}
+.defrag-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,73 @@
+/* ════════════════════════════════
+   MS-DOS PROMPT
+   ════════════════════════════════ */
+.dos-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 3px;
+  background: var(--c-material);
+  border-bottom: 1px solid var(--c-border-dark);
+  box-shadow: inset 0 -1px 0 var(--c-border-lightest);
+  flex-shrink: 0;
+}
+.dos-combo {
+  display: flex; align-items: stretch;
+  width: 62px; height: 21px; padding: 2px;
+  background: #fff;
+  box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #808080, inset -2px -2px 0 #c0c0c0, inset 2px 2px 0 #000;
+}
+.dos-combo-txt {
+  flex: 1; display: flex; align-items: center; padding-left: 3px;
+  font-family: 'w95fa', 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 12px; color: #000;
+}
+.dos-combo-btn {
+  width: 16px; flex-shrink: 0; align-self: stretch; border: none; cursor: pointer;
+  background: #c0c0c0;
+  box-shadow: inset -1px -1px 0 #000, inset 1px 1px 0 #c1c1c1, inset -2px -2px 0 #818181, inset 2px 2px 0 #fff;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.dos-tb-btn {
+  width: 23px; height: 22px;
+  background: var(--c-material);
+  border: none;
+  box-shadow: inset -1px -1px 0 #000, inset 1px 1px 0 #fff, inset -2px -2px 0 #808080;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.dos-tb-btn:active { box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #fff, inset 2px 2px 0 #808080; }
+.dos-tb-btn svg { width: 16px; height: 16px; display: block; }
+.dos-tb-sep {
+  width: 3px; height: 18px; margin: 0 2px;
+  box-shadow: inset -1px 0 0 #fff, inset 1px 0 0 #808080;
+}
+
+.dos-screen {
+  flex: 1;
+  overflow: hidden;
+  background: #000;
+  color: #c0c0c0;
+  font-family: 'Fixedsys', 'Courier New', monospace;
+  font-weight: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-stroke: 0.25px #000;
+  font-size: 16px;
+  line-height: 1.3;
+  padding: 2px 4px 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+  outline: none;
+}
+.dos-cursor {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: #c0c0c0;
+  vertical-align: text-bottom;
+  margin-bottom: 1px;
+  animation: dos-blink 1s steps(1) infinite;
+}
+@keyframes dos-blink { 50% { opacity: 0; } }
