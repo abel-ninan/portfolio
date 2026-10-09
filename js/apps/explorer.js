@@ -1,150 +1,43 @@
 // ════════════════════════════════
 //  EXPLORER WINDOWS (My Computer, My Files, folders, Recycle Bin)
 // ════════════════════════════════
-function buildFilesWindow(container) {
-  const files = [
-    { name: 'Documents', icon: ICONS.files },
-    { name: 'Photos',    icon: ICONS.files },
-    { name: 'Nat Miletic Bio', icon: ICONS.textFile },
-  ];
-
-  container.innerHTML = `
+// Folder items open with one click / tap through the js/desktop.js convention:
+//   open:   window type  -> data-open
+//   href:   url          -> data-href (new tab)
+//   action: tap action   -> data-action (+ data-* from `data`)
+// Items without any of these only get selected, like the original.
+const FOLDER_MENUBAR = `
     <div class="window-menubar">
       <span class="menu-item"><u>F</u>ile</span>
       <span class="menu-item"><u>E</u>dit</span>
       <span class="menu-item"><u>V</u>iew</span>
       <span class="menu-item"><u>H</u>elp</span>
-    </div>
-    <div class="window-content">
-      <div class="file-grid">
-        ${files.map(f => `
-          <div class="file-item" onclick="selectFile(this)" ondblclick="openFileItem('${f.name}')">
-            <img src="${f.icon}" alt="">
-            <span class="file-label">${f.name}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="status-bar">
-      <span class="status-item">${files.length} object(s)</span>
-      <div class="status-resize-slot"></div>
-    </div>
-  `;
+    </div>`;
+
+function folderItemHTML(item) {
+  let attrs = '';
+  if (item.open) attrs += ` data-open="${escapeHTML(item.open)}"`;
+  else if (item.href) attrs += ` data-href="${escapeHTML(item.href)}"`;
+  else if (item.action) attrs += ` data-action="${escapeHTML(item.action)}"`;
+  Object.keys(item.data || {}).forEach(k => {
+    attrs += ` data-${k}="${escapeHTML(item.data[k])}"`;
+  });
+  if (item.tip) attrs += ` title="${escapeHTML(item.tip)}"`;
+  const tappable = item.open || item.href || item.action;
+  return `
+          <div class="file-item"${attrs}${tappable ? ' role="button" tabindex="0"' : ''}>
+            <img src="${escapeHTML(item.icon)}" alt="">
+            <span class="file-label">${escapeHTML(item.name).replace(/_/g, '_<wbr>')}</span>
+          </div>`;
 }
 
-function buildDocumentsWindow(container) {
-  const files = [
-    { name: 'Clio Websites Portfolio', url: 'https://cliowebsites.com/portfolio' },
-    { name: 'Websites USA Portfolio',  url: 'https://websitesusa.com/our-work/' },
-    { name: 'Nat Miletic Github',      url: 'https://github.com/natmiletic' },
-  ];
+// Standard folder window: menubar, white icon grid, status bar.
+function buildFolderWindow(container, items) {
   container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
+    ${FOLDER_MENUBAR}
     <div class="window-content">
       <div class="file-grid">
-        ${files.map(f => `
-          <div class="file-item" onclick="selectFile(this)" ondblclick="window.open('${f.url}','_blank')">
-            <img src="img/world.png" alt="${f.name}">
-            <span class="file-label">${f.name}</span>
-          </div>`).join('')}
-      </div>
-    </div>
-    <div class="status-bar">
-      <span class="status-item">${files.length} object(s)</span>
-      <div class="status-resize-slot"></div>
-    </div>
-  `;
-}
-
-function buildPhotosWindow(container) {
-  const photos = [
-    { name: 'Nat Miletic Headshot', src: 'img/headshot.png', icon: ICONS.imageFile },
-  ];
-  container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
-    <div class="window-content">
-      <div class="file-grid">
-        ${photos.map(p => `
-          <div class="file-item" onclick="selectFile(this)" ondblclick="openImageInPaint('${p.src}','${p.name}')">
-            <img src="${p.icon}" alt="">
-            <span class="file-label">${p.name}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="status-bar">
-      <span class="status-item">${photos.length} object(s)</span>
-      <div class="status-resize-slot"></div>
-    </div>
-  `;
-}
-
-function buildComputerWindow(container) {
-  const drives = [
-    { name: 'Floppy (A:)',      icon: ICONS.floppy },
-    { name: 'Local Disk (C:)',  icon: ICONS.drive },
-    { name: 'CD-ROM (D:)',      icon: ICONS.cdrom },
-    { name: 'My Files',         icon: ICONS.files },
-    { name: 'Control Panel',    icon: ICONS.controlPanel },
-  ];
-
-  container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
-    <div class="window-content">
-      <div class="file-grid">
-        ${drives.map(d => `
-          <div class="file-item" onclick="selectFile(this)" ondblclick="${d.name === 'My Files' ? "openWindow('files')" : d.name === 'Control Panel' ? "openWindow('controlpanel')" : ''}">
-            <img src="${d.icon}" alt="">
-            <span class="file-label">${d.name}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="status-bar">
-      <span class="status-item">${drives.length} object(s)</span>
-      <div class="status-resize-slot"></div>
-    </div>
-  `;
-}
-
-function buildControlPanelWindow(container) {
-  const items = [
-    { name: 'Display',        icon: 'img/my-computer.png' },
-    { name: 'Fonts',          icon: 'img/notepad.png' },
-    { name: 'Internet',       icon: 'img/internet-explorer.png' },
-    { name: 'Mouse',          icon: 'img/my-computer.png' },
-    { name: 'Sounds',         icon: 'img/speaker.png' },
-  ];
-  container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
-    <div class="window-content">
-      <div class="file-grid">
-        ${items.map(d => `
-          <div class="file-item" onclick="selectFile(this)">
-            <img src="${d.icon}" alt="">
-            <span class="file-label">${d.name}</span>
-          </div>
-        `).join('')}
+        ${items.map(folderItemHTML).join('')}
       </div>
     </div>
     <div class="status-bar">
@@ -152,35 +45,75 @@ function buildControlPanelWindow(container) {
       <div class="status-resize-slot"></div>
     </div>
   `;
+  // Plain items (drives, Control Panel applets) still select on click.
+  container.querySelector('.file-grid').addEventListener('click', e => {
+    const item = e.target.closest('.file-item');
+    if (item) selectFile(item);
+  });
 }
 
-function buildBriefcaseWindow(container) {
-  const files = [
-    { name: 'Clio Websites Portfolio',  url: 'https://cliowebsites.com/portfolio' },
-    { name: 'Websites USA Portfolio',   url: 'https://websitesusa.com/our-work/' },
-    { name: 'Nat Miletic Github',       url: 'https://github.com/natmiletic' },
-  ];
-  container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
-    <div class="window-content">
-      <div class="file-grid">
-        ${files.map(f => `
-          <div class="file-item" onclick="selectFile(this)" ondblclick="window.open('${f.url}','_blank')">
-            <img src="img/world.png" alt="${f.name}">
-            <span class="file-label">${f.name}</span>
-          </div>`).join('')}
-      </div>
-    </div>
-    <div class="status-bar">
-      <span class="status-item">${files.length} object(s)</span>
-      <div class="status-resize-slot"></div>
-    </div>
-  `;
+function buildFilesWindow(container) {
+  buildFolderWindow(container, [
+    { name: 'Documents',      icon: ICONS.files, open: 'documents' },
+    { name: 'Photos',         icon: ICONS.files, open: 'photos' },
+    { name: 'My Projects',    icon: ICONS.projects, open: 'projects' },
+    { name: 'Abel Ninan Bio', icon: ICONS.textFile, open: 'bio' },
+  ]);
+}
+
+function buildDocumentsWindow(container) {
+  buildFolderWindow(container, [
+    { name: 'Abel_Ninan_Resume.pdf', icon: ICONS.pdf, href: PORTFOLIO.links.resumePdf, tip: 'Opens the PDF in a new tab' },
+    { name: 'Resume.doc',            icon: ICONS.resume, open: 'resume' },
+    { name: 'Certifications.txt',    icon: ICONS.certificate, open: 'certifications' },
+    { name: 'GitHub',                icon: ICONS.github, href: PORTFOLIO.links.github, tip: PORTFOLIO.links.github },
+  ]);
+}
+
+function buildPhotosWindow(container) {
+  buildFolderWindow(container, [
+    { name: 'Abel_Ninan.png', icon: ICONS.imageFile, action: 'open-image',
+      data: { src: 'img/headshot.png', name: 'Abel_Ninan.png' } },
+  ]);
+}
+
+function buildComputerWindow(container) {
+  buildFolderWindow(container, [
+    { name: 'Floppy (A:)',     icon: ICONS.floppy },
+    { name: 'Local Disk (C:)', icon: ICONS.drive },
+    { name: 'CD-ROM (D:)',     icon: ICONS.cdrom },
+    { name: 'My Files',        icon: ICONS.files, open: 'files' },
+    { name: 'Control Panel',   icon: ICONS.controlPanel, open: 'controlpanel' },
+  ]);
+}
+
+function buildControlPanelWindow(container) {
+  buildFolderWindow(container, [
+    { name: 'Display',  icon: 'img/my-computer.png' },
+    { name: 'Fonts',    icon: 'img/notepad.png' },
+    { name: 'Internet', icon: 'img/internet-explorer.png' },
+    { name: 'Mouse',    icon: 'img/my-computer.png' },
+    { name: 'Sounds',   icon: 'img/speaker.png' },
+  ]);
+}
+
+// My Projects: one icon per project in PORTFOLIO.projects; the status bar
+// shows a project's one-line subtitle while the pointer is over it.
+function buildProjectsFolderWindow(container) {
+  const projects = PORTFOLIO.projects;
+  buildFolderWindow(container, projects.map(p => ({
+    name: p.title,
+    icon: p.icon,
+    open: projectWindowType(p.id),
+    tip: p.subtitle,
+  })));
+  container.querySelector('.file-grid').classList.add('pf-project-grid');
+  const status = container.querySelector('.status-item');
+  const idle = `${projects.length} object(s)`;
+  container.querySelectorAll('.file-item').forEach((el, i) => {
+    el.addEventListener('mouseenter', () => { status.textContent = projects[i].subtitle; });
+    el.addEventListener('mouseleave', () => { status.textContent = idle; });
+  });
 }
 
 function buildRecycleWindow(container) {
@@ -189,19 +122,14 @@ function buildRecycleWindow(container) {
   const items = typeof recycleBinItems !== 'undefined' ? recycleBinItems : [];
   const rows = items.map(item => `
     <div style="${rowStyle}">
-      <div style="flex:1;display:flex;align-items:center;gap:6px;padding:0 6px;">
-        <img src="${item.src}" style="width:16px;height:16px;image-rendering:pixelated;flex-shrink:0;">
-        <span>${item.name}</span>
+      <div style="flex:1;display:flex;align-items:center;gap:6px;padding:0 6px;min-width:0;">
+        <img src="${escapeHTML(item.src)}" alt="" style="width:16px;height:16px;image-rendering:pixelated;flex-shrink:0;">
+        <span style="overflow-wrap:anywhere;">${escapeHTML(item.name)}</span>
       </div>
       <div style="flex:1;padding:0 6px;color:#444;">Desktop</div>
     </div>`).join('');
   container.innerHTML = `
-    <div class="window-menubar">
-      <span class="menu-item"><u>F</u>ile</span>
-      <span class="menu-item"><u>E</u>dit</span>
-      <span class="menu-item"><u>V</u>iew</span>
-      <span class="menu-item"><u>H</u>elp</span>
-    </div>
+    ${FOLDER_MENUBAR}
     <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
       <div style="display:flex;flex-shrink:0;background:var(--c-material);">
         <div style="${colStyle}">Name</div>

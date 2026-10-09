@@ -25,13 +25,15 @@
 }
 .defrag-controls {
   display: flex;
+  flex-wrap: wrap; /* narrow windows: the buttons move under the progress bar */
   align-items: center;
   gap: 8px;
   padding: 8px 4px 4px;
   flex-shrink: 0;
 }
 .defrag-info {
-  flex: 1;
+  flex: 1 1 200px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -69,3 +71,14 @@
   gap: 4px;
   flex-shrink: 0;
 }
+.defrag-btn { width: 90px; }
+.defrag-viewport { touch-action: none; } /* dragged by finger to scroll */
+
+/* Phones: the buttons wrap under the progress bar when the window is too
+   narrow for both, and then fill the width in two columns. On one row the
+   status side takes (almost) all the spare room. */
+body.is-phone .defrag-info { flex-grow: 999; }
+body.is-phone .defrag-btns { flex: 1 1 200px; }
+body.is-phone .defrag-btn { width: auto; min-width: 0; padding: 0 4px; }
+body.is-phone .defrag-status-txt,
+body.is-phone .defrag-pct { font-size: 14px; }

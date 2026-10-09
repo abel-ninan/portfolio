@@ -76,12 +76,4 @@
   overflow: auto;
   background: #fff;
 }
-
-
-/* ════════════════════════════════
-   RESPONSIVE
-   ════════════════════════════════ */
-@media (max-width: 480px) {
-  .taskbar-btn { min-width: 44px; padding: 0 4px; }
-  .window { min-width: 160px; }
-}
+/* Phone / narrow-screen rules live in css/mobile.css */

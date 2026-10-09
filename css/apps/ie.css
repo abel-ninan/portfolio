@@ -1,6 +1,16 @@
 /* ════════════════════════════════
    INTERNET EXPLORER
    ════════════════════════════════ */
+.ie-window-body {
+  position: relative; /* anchors the File / Edit / ... dropdowns */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ie-menubar .menu-item.open {
+  background-color: #000080;
+  color: #fff;
+}
 .ie-toolbar {
   display: flex;
   align-items: center;
@@ -9,6 +19,8 @@
   background: var(--c-material);
   border-bottom: 1px solid var(--c-border-dark);
   flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .ie-btn-group {
   display: flex;
@@ -25,15 +37,28 @@
   border: 1px solid transparent;
   cursor: default;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  color: #000;
   width: 60px;
+  flex-shrink: 0;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 .ie-nav-btn svg { width: 32px; height: 32px; flex-shrink: 0; }
 .ie-nav-btn img { width: 32px; height: 32px; flex-shrink: 0; image-rendering: pixelated; }
+.ie-nav-btn img.ie-ico-sq   { width: 22px; height: 22px; }
+.ie-nav-btn img.ie-ico-wide { width: 42px; height: 22px; }
 .ie-nav-btn span { font-size: 11px; line-height: 1; white-space: nowrap; }
+.ie-lbl-short { display: none; }
 .ie-nav-dim { opacity: 0.4; }
+.ie-nav-btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
 .ie-toolbar-divider {
   width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
   background: var(--c-border-dark);
   margin: 4px 3px;
 }
@@ -53,10 +78,23 @@
 .ie-toolbar-sep {
   flex: 1;
 }
+.ie-logo {
+  flex-shrink: 0;
+}
 .ie-logo img {
   width: 28px;
   height: 28px;
   image-rendering: pixelated;
+  display: block;
+}
+/* Throbber: the logo wobbles while a page is loading */
+.ie-logo.busy img { animation: ie-throb 0.6s steps(1) infinite; }
+@keyframes ie-throb {
+  0%  { transform: none; }
+  50% { transform: translateY(-1px) rotate(-10deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ie-logo.busy img { animation: none; }
 }
 .ie-addressbar {
   display: flex;
@@ -66,6 +104,7 @@
   background: var(--c-material);
   border-bottom: 1px solid var(--c-border-dark);
   flex-shrink: 0;
+  min-width: 0;
 }
 .ie-address-label {
   font-size: 11px;
@@ -75,11 +114,14 @@
 }
 .ie-address-input {
   flex: 1;
+  min-width: 0;
   height: 22px;
   font-size: 11px;
   font-family: 'Lucida Console', 'Courier New', monospace;
+  color: #000;
   padding: 0 4px;
   border: 2px solid;
+  border-radius: 0;
   border-top-color: var(--c-border-dark);
   border-left-color: var(--c-border-dark);
   border-bottom-color: var(--c-border-lightest);
@@ -87,16 +129,22 @@
   box-shadow: inset 1px 1px 0 var(--c-border-darkest);
   background: #fff;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .ie-go-btn {
   height: 22px;
   padding: 0 10px;
   font-size: 11px;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  color: #000;
   background: var(--c-material);
   border: none;
+  border-radius: 0;
   box-shadow: var(--shadow-btn);
   cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 .ie-go-btn:active {
   box-shadow: var(--shadow-btn-active);
@@ -109,6 +157,8 @@
   background: var(--c-material);
   border-bottom: 1px solid var(--c-border-dark);
   flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .ie-links-label {
   font-size: 11px;
@@ -121,29 +171,40 @@
 .ie-link-btn {
   font-size: 11px;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  color: #000;
   background: transparent;
   border: none;
   padding: 3px 6px;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 .ie-link-btn:hover {
   box-shadow: var(--shadow-btn);
   background: var(--c-material);
+}
+.ie-link-btn:active {
+  box-shadow: var(--shadow-btn-active);
 }
 .ie-content {
   flex: 1;
   position: relative;
   overflow: hidden;
   min-height: 0;
+  background: #fff;
   cursor: url('../../img/cursor-hand.png') 2 0, pointer;
 }
-#ie-frame {
+.ie-frame {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   border: none;
   display: block;
-  filter: grayscale(18%) saturate(75%) contrast(108%) brightness(90%) sepia(12%);
+  background: #fff;
+  /* Old-monitor tint, light enough that pages stay easy to read */
+  filter: saturate(85%) contrast(104%) brightness(97%) sepia(8%);
 }
 .ie-content::after {
   content: '';
@@ -158,4 +219,262 @@
     rgba(0, 0, 0, 0.04) 4px
   );
   z-index: 2;
+}
+
+/* Status bar: long "Opening page ..." text is cut with an ellipsis */
+.ie-statusbar .status-item { min-width: 0; }
+.ie-status-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ── Dropdown menus ── */
+.ie-menu {
+  position: absolute;
+  z-index: 10;
+  min-width: 170px;
+  padding: 2px;
+  background: var(--c-material);
+  box-shadow: var(--shadow-raised), 2px 2px 0 rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+.ie-menu-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 3px 24px 3px 20px;
+  background: transparent;
+  border: none;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 16px;
+  color: #000;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ie-menu-row:hover,
+.ie-menu-row:focus-visible {
+  background: #000080;
+  color: #fff;
+  outline: none;
+}
+.ie-menu-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: default;
+}
+.ie-menu-sep {
+  height: 0;
+  margin: 3px 2px;
+  border-top: 1px solid var(--c-border-dark);
+  border-bottom: 1px solid var(--c-border-lightest);
+}
+
+/* ── Built-in pages: "The page cannot be displayed", Action canceled, About ── */
+.ie-page {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: #fff;
+  color: #000;
+  cursor: default;
+}
+.ie-page[hidden] { display: none; }
+.ie-err {
+  max-width: 560px;
+  padding: 14px 18px 18px;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ie-err-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ie-err-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+.ie-err-title {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin: 0;
+}
+.ie-err p { margin: 0 0 10px; overflow-wrap: anywhere; }
+.ie-err hr {
+  border: none;
+  border-top: 1px solid #c0c0c0;
+  margin: 12px 0;
+}
+.ie-err ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.ie-err li { margin-bottom: 6px; }
+.ie-err-link {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ie-err-actions { margin: 14px 0 4px; }
+.ie-err-btn {
+  min-height: 24px;
+  padding: 3px 14px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  color: #000;
+  background: var(--c-material);
+  border: none;
+  border-radius: 0;
+  box-shadow: var(--shadow-btn);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.ie-err-btn:active { box-shadow: var(--shadow-btn-active); }
+.ie-err-btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+.ie-err-foot {
+  margin-top: 18px !important;
+  color: #808080;
+  font-size: 11px;
+}
+
+/* ════════════════════════════════
+   PHONES  (body.is-phone, see css/mobile.css)
+   Everything stays inside the full-screen window: the toolbar shrinks its
+   buttons, then scrolls sideways inside the window as a last resort.
+   ════════════════════════════════ */
+body.is-phone .ie-toolbar {
+  padding: 2px;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+body.is-phone .ie-toolbar::-webkit-scrollbar { display: none; }
+body.is-phone .ie-nav-btn {
+  flex: 1 0 40px;
+  width: auto;
+  max-width: 64px;
+  min-height: 46px;
+  padding: 3px 0;
+}
+body.is-phone .ie-nav-btn:active { padding: 4px 0 2px 1px; }
+body.is-phone .ie-nav-btn img.ie-ico-wide { width: 34px; object-fit: cover; }
+body.is-phone .ie-lbl-full { display: none; }
+body.is-phone .ie-lbl-short { display: inline; }
+body.is-phone .ie-toolbar-divider { margin: 4px 1px; }
+body.is-phone .ie-logo { padding: 0 2px; }
+
+body.is-phone .ie-addressbar {
+  padding: 4px;
+  gap: 4px;
+}
+body.is-phone .ie-address-label { font-size: 13px; }
+body.is-phone .ie-addressbar .ie-address-input {
+  height: 36px;
+  font-size: 16px; /* never below 16px: iOS zooms into smaller inputs */
+}
+body.is-phone .ie-go-btn {
+  height: 36px;
+  min-width: 46px;
+  padding: 0 8px;
+  font-size: 15px;
+}
+
+body.is-phone .ie-linksbar {
+  padding: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+body.is-phone .ie-linksbar::-webkit-scrollbar { display: none; }
+body.is-phone .ie-links-label { font-size: 13px; padding-left: 2px; }
+body.is-phone .ie-link-btn {
+  min-height: 36px;
+  padding: 4px 9px;
+  font-size: 15px;
+}
+body.is-phone .ie-link-btn:hover { box-shadow: none; }
+body.is-phone .ie-link-btn:active { box-shadow: var(--shadow-btn-active); }
+body.is-phone .ie-content { cursor: auto; }
+
+body.is-phone .ie-statusbar {
+  height: 22px;
+  font-size: 13px;
+}
+body.is-phone .ie-status-zone { flex: 0 0 auto; }
+
+body.is-phone .ie-menu {
+  max-width: 100%;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+}
+body.is-phone .ie-menu-row {
+  min-height: 42px;
+  padding: 6px 28px 6px 20px;
+}
+
+body.is-phone .ie-err {
+  padding: 14px 14px 20px;
+  font-size: 15px;
+}
+body.is-phone .ie-err-title { font-size: 19px; }
+body.is-phone .ie-err-foot { font-size: 13px; }
+body.is-phone .ie-err-btn {
+  min-height: 42px;
+  padding: 6px 18px;
+  font-size: 16px;
+}
+
+/* Narrow phones: drop the logo and the Address label to save width */
+@media (max-width: 379px) {
+  body.is-phone .ie-logo,
+  body.is-phone .ie-toolbar-sep { display: none; }
+  body.is-phone .ie-link-btn { padding: 4px 6px; }
+}
+@media (max-width: 359px) {
+  body.is-phone .ie-address-label { display: none; }
+}
+
+/* Landscape phones: toolbar and address share one row, icons only, links in
+   the Favorites menu, so the page keeps most of the short screen. */
+@media (max-height: 500px) {
+  body.is-phone .ie-bars {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 0;
+    background: var(--c-material);
+    border-bottom: 1px solid var(--c-border-dark);
+  }
+  body.is-phone .ie-bars .ie-toolbar { flex: 0 0 auto; max-width: 60%; border-bottom: none; }
+  body.is-phone .ie-bars .ie-addressbar { flex: 1 1 0; border-bottom: none; }
+  body.is-phone .ie-nav-btn {
+    flex: 0 0 42px;
+    width: 42px; /* WebKit sizes the row from widths, not flex-basis */
+    min-height: 40px;
+  }
+  body.is-phone .ie-nav-btn span { display: none; }
+  body.is-phone .ie-logo,
+  body.is-phone .ie-toolbar-sep,
+  body.is-phone .ie-linksbar { display: none; }
 }

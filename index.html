@@ -2,16 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nat Miletic's Windows 95 Portfolio Website</title>
-  <meta name="description" content="Step back into 1995 — Nat Miletic's interactive portfolio built as a fully functional Windows 95 desktop simulation. Explore files, open windows, and discover the story of a Calgary web designer and founder of Clio Websites, all wrapped in glorious retro UI.">
-  <meta property="og:title" content="Nat Miletic's Windows 95 Portfolio Website">
-  <meta property="og:description" content="Step back into 1995 — an interactive portfolio built as a fully functional Windows 95 desktop simulation. Explore files, open windows, and discover the story of a Calgary web designer.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Abel Ninan's Windows 95 Portfolio</title>
+  <meta name="description" content="Abel Ninan's portfolio as a working Windows 95 desktop. Data analyst (SQL, Power BI, Microsoft Fabric) who builds iOS apps, data pipelines and AI workflows. Open his projects, resume and bio with a single click.">
+  <meta name="author" content="Abel Ninan">
+  <meta name="theme-color" content="#008080">
+  <link rel="canonical" href="https://abelninan.com/">
+  <meta property="og:title" content="Abel Ninan's Windows 95 Portfolio">
+  <meta property="og:description" content="Data analyst and builder of apps, data pipelines and AI workflows. Explore Abel Ninan's projects, resume and bio on a fully working Windows 95 desktop.">
   <meta property="og:image" content="img/social-preview.jpg">
+  <meta property="og:url" content="https://abelninan.com/">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Abel Ninan">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Nat Miletic's Windows 95 Portfolio Website">
-  <meta name="twitter:description" content="Step back into 1995 — an interactive portfolio built as a fully functional Windows 95 desktop simulation.">
+  <meta name="twitter:title" content="Abel Ninan's Windows 95 Portfolio">
+  <meta name="twitter:description" content="Data analyst and builder of apps, data pipelines and AI workflows, on a fully working Windows 95 desktop.">
   <meta name="twitter:image" content="img/social-preview.jpg">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
@@ -25,7 +30,9 @@
   <link rel="stylesheet" href="css/apps/minesweeper.css">
   <link rel="stylesheet" href="css/apps/defrag.css">
   <link rel="stylesheet" href="css/apps/msdos.css">
+  <link rel="stylesheet" href="css/apps/portfolio.css">
   <link rel="stylesheet" href="css/winamp.css">
+  <link rel="stylesheet" href="css/mobile.css">
 
 </head>
 <body>
@@ -44,67 +51,64 @@
 
 <!-- ════════════════════════════════
      DESKTOP
+     One click / tap opens an icon: data-open="<window type>" or
+     data-href="<url>" (js/desktop.js). draggable="true" icons can be
+     dropped on the Recycle Bin.
      ════════════════════════════════ -->
 <div id="desktop" onclick="desktopClick(event)" oncontextmenu="showContextMenu(event)">
 
   <div id="desktop-icons">
 
   <!-- My Computer icon -->
-  <div class="desktop-icon" id="icon-computer" style="top:16px;left:14px;"
-       onclick="selectIcon(event,'icon-computer')" ondblclick="openWindow('computer')">
+  <div class="desktop-icon" id="icon-computer" data-open="computer" role="button" tabindex="0">
     <img src="img/my-computer.png" alt="My Computer">
     <span class="icon-label">My Computer</span>
   </div>
 
   <!-- My Files icon -->
-  <div class="desktop-icon" id="icon-files" style="top:110px;left:14px;"
-       draggable="true"
-       ondragstart="iconDragStart(event,'icon-files','My Files','img/folder.png')"
-       onclick="selectIcon(event,'icon-files')" ondblclick="openWindow('files')">
+  <div class="desktop-icon" id="icon-files" data-open="files" role="button" tabindex="0" draggable="true">
     <img src="img/folder.png" alt="My Files">
     <span class="icon-label">My Files</span>
   </div>
 
+  <!-- My Projects icon -->
+  <div class="desktop-icon" id="icon-projects" data-open="projects" role="button" tabindex="0" draggable="true">
+    <img src="img/icons/projects.png" alt="My Projects">
+    <span class="icon-label">My Projects</span>
+  </div>
+
+  <!-- Resume icon -->
+  <div class="desktop-icon" id="icon-resume" data-open="resume" role="button" tabindex="0" draggable="true">
+    <img src="img/icons/resume.png" alt="Resume">
+    <span class="icon-label">Resume</span>
+  </div>
+
+  <!-- Abel Ninan Bio icon -->
+  <div class="desktop-icon" id="icon-bio" data-open="bio" role="button" tabindex="0" draggable="true">
+    <img src="img/notepad.png" alt="Abel Ninan Bio">
+    <span class="icon-label">Abel Ninan Bio</span>
+  </div>
+
   <!-- Internet Explorer icon -->
-  <div class="desktop-icon" id="icon-ie" style="top:204px;left:14px;"
-       draggable="true"
-       ondragstart="iconDragStart(event,'icon-ie','Internet Explorer','img/internet-explorer.png')"
-       onclick="selectIcon(event,'icon-ie')" ondblclick="openWindow('ie')">
+  <div class="desktop-icon" id="icon-ie" data-open="ie" role="button" tabindex="0" draggable="true">
     <img src="img/internet-explorer.png" alt="Internet Explorer">
     <span class="icon-label">Internet Explorer</span>
   </div>
 
-  <!-- My Briefcase icon -->
-  <div class="desktop-icon" id="icon-briefcase" style="top:298px;left:14px;"
-       draggable="true"
-       ondragstart="iconDragStart(event,'icon-briefcase','My Briefcase','img/briefcase.png')"
-       onclick="selectIcon(event,'icon-briefcase')" ondblclick="openWindow('briefcase')">
-    <img src="img/briefcase.png" alt="My Briefcase">
-    <span class="icon-label">My Briefcase</span>
-  </div>
-
-  <!-- Nat Miletic Bio icon -->
-  <div class="desktop-icon" id="icon-bio" style="top:392px;left:14px;"
-       draggable="true"
-       ondragstart="iconDragStart(event,'icon-bio','Nat Miletic Bio','img/notepad.png')"
-       onclick="selectIcon(event,'icon-bio')" ondblclick="openWindow('bio')">
-    <img src="img/notepad.png" alt="Nat Miletic Bio">
-    <span class="icon-label">Nat Miletic Bio</span>
-  </div>
-
   <!-- LinkedIn icon -->
-  <div class="desktop-icon" id="icon-linkedin" style="top:486px;left:14px;"
-       draggable="true"
-       ondragstart="iconDragStart(event,'icon-linkedin','LinkedIn','img/linkedin.png')"
-       onclick="selectIcon(event,'icon-linkedin')" ondblclick="window.open('https://linkedin.com/in/natmiletic','_blank')">
+  <div class="desktop-icon" id="icon-linkedin" data-href="https://www.linkedin.com/in/abelninan" role="link" tabindex="0" draggable="true">
     <img src="img/linkedin.png" alt="LinkedIn">
     <span class="icon-label">LinkedIn</span>
   </div>
 
+  <!-- Contact Me icon -->
+  <div class="desktop-icon" id="icon-contact" data-open="contact" role="button" tabindex="0" draggable="true">
+    <img src="img/icons/contact.png" alt="Contact Me">
+    <span class="icon-label">Contact Me</span>
+  </div>
+
   <!-- Recycle Bin icon -->
-  <div class="desktop-icon" id="icon-recycle" style="top:580px;left:14px;"
-       onclick="selectIcon(event,'icon-recycle')" ondblclick="openWindow('recycle')"
-       ondragover="recycleDragOver(event)" ondragleave="recycleDragLeave(event)" ondrop="recycleDrop(event)">
+  <div class="desktop-icon" id="icon-recycle" data-open="recycle" role="button" tabindex="0">
     <img src="img/recycle-bin.png" alt="Recycle Bin">
     <span class="icon-label">Recycle Bin</span>
   </div>
@@ -118,7 +122,7 @@
      ════════════════════════════════ -->
 <div id="taskbar">
 
-  <button id="start-btn" onclick="toggleStartMenu(event)"></button>
+  <button id="start-btn" onclick="toggleStartMenu(event)" aria-label="Start"></button>
 
   <div class="taskbar-sep"></div>
   <div id="taskbar-windows"></div>
@@ -133,6 +137,8 @@
 
 <!-- ════════════════════════════════
      START MENU
+     Leaf items use data-open / data-action; js/apps/registry.js closes the
+     menu after one of them is clicked.
      ════════════════════════════════ -->
 <div id="start-menu">
 
@@ -162,7 +168,7 @@
               <span class="item-text">Games</span>
               <span style="margin-left:auto;font-size:8px;color:#000;line-height:1;">&#9658;</span>
               <div class="start-submenu">
-                <div class="start-submenu-item" onclick="openWindow('minesweeper');closeStartMenu()">
+                <div class="start-submenu-item" data-open="minesweeper">
                   <img src="img/minesweeper.png" alt="">
                   <span class="item-text">Minesweeper</span>
                 </div>
@@ -173,61 +179,84 @@
               <span class="item-text">System Tools</span>
               <span style="margin-left:auto;font-size:8px;color:#000;line-height:1;">&#9658;</span>
               <div class="start-submenu">
-                <div class="start-submenu-item" onclick="openWindow('defrag');closeStartMenu()">
+                <div class="start-submenu-item" data-open="defrag">
                   <img src="img/defrag.png" alt="">
                   <span class="item-text">Disk Defragmenter</span>
                 </div>
               </div>
             </div>
-            <div class="start-submenu-item" onclick="openWindow('paint');closeStartMenu()">
+            <div class="start-submenu-item" data-open="paint">
               <img src="img/paint.png" alt="">
               <span class="item-text">Paint</span>
             </div>
-            <div class="start-submenu-item" onclick="openWindow('notepad');closeStartMenu()">
+            <div class="start-submenu-item" data-open="notepad">
               <img src="img/notepad2.png" alt="">
               <span class="item-text">Notepad</span>
             </div>
           </div>
         </div>
-        <div class="start-submenu-item" onclick="openWindow('msdos');closeStartMenu()">
+        <div class="start-submenu-item" data-open="msdos">
           <img src="img/msdos-icon.png" alt="">
           <span class="item-text">MS-DOS Prompt</span>
         </div>
-        <div class="start-submenu-item" onclick="openWindow('ie');closeStartMenu()">
+        <div class="start-submenu-item" data-open="ie">
           <img src="img/internet-explorer.png" alt="">
           <span class="item-text">Internet Explorer</span>
+        </div>
+        <div class="start-submenu-item" data-open="winamp">
+          <img src="img/winamp.svg" alt="">
+          <span class="item-text">Winamp</span>
         </div>
       </div>
     </div>
 
-    <div class="start-menu-item" onclick="openWindow('computer');closeStartMenu()">
+    <div class="start-menu-item has-submenu">
+      <img src="img/icons/resume.png" alt="">
+      <span class="item-text">Documents</span>
+      <span style="margin-left:auto;font-size:10px;color:#000;line-height:1;">&#9658;</span>
+      <div class="start-submenu">
+        <div class="start-submenu-item" data-open="resume">
+          <img src="img/icons/resume.png" alt="">
+          <span class="item-text">Resume</span>
+        </div>
+        <div class="start-submenu-item" data-open="projects">
+          <img src="img/icons/projects.png" alt="">
+          <span class="item-text">My Projects</span>
+        </div>
+        <div class="start-submenu-item" data-open="bio">
+          <img src="img/notepad.png" alt="">
+          <span class="item-text">Abel Ninan Bio</span>
+        </div>
+        <div class="start-submenu-item" data-open="contact">
+          <img src="img/icons/contact.png" alt="">
+          <span class="item-text">Contact Me</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="start-menu-item" data-open="computer">
       <img src="img/my-computer.png" alt="">
       <span class="item-text">My Computer</span>
     </div>
 
-    <div class="start-menu-item" onclick="openWindow('files');closeStartMenu()">
+    <div class="start-menu-item" data-open="files">
       <img src="img/folder.png" alt="">
       <span class="item-text">My Files</span>
     </div>
 
-    <div class="start-menu-item" onclick="openWindow('notepad');closeStartMenu()">
-      <img src="img/notepad2.png" alt="">
-      <span class="item-text">Notepad</span>
-    </div>
-
-    <div class="start-menu-item" onclick="openWindow('welcome');closeStartMenu()">
+    <div class="start-menu-item" data-open="welcome">
       <img src="img/welcome.png" alt="">
       <span class="item-text">Welcome</span>
     </div>
 
-    <div class="start-menu-item" onclick="openWindow('run');closeStartMenu()">
+    <div class="start-menu-item" data-open="run">
       <img src="img/run.ico" alt="" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;">
       <span class="item-text">Run...</span>
     </div>
 
     <div class="start-menu-sep"></div>
 
-    <div class="start-menu-item" onclick="showShutdown();closeStartMenu()">
+    <div class="start-menu-item" data-action="shutdown">
       <img src="img/shutdown.ico" alt="" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;">
       <span class="item-text">Shut Down...</span>
     </div>
@@ -253,6 +282,7 @@
   <script src="js/taskbar.js"></script>
   <script src="js/drag-resize.js"></script>
   <script src="js/winamp.js"></script>
+  <script src="js/content.js"></script>
   <script src="js/apps/explorer.js"></script>
   <script src="js/apps/paint.js"></script>
   <script src="js/apps/ie.js"></script>
@@ -263,6 +293,9 @@
   <script src="js/apps/msdos.js"></script>
   <script src="js/apps/minesweeper.js"></script>
   <script src="js/apps/defrag.js"></script>
+  <script src="js/apps/projects.js"></script>
+  <script src="js/apps/resume.js"></script>
+  <script src="js/apps/contact.js"></script>
   <script src="js/apps/registry.js"></script>
   <script src="js/desktop.js"></script>
   <script src="js/dialog.js"></script>
@@ -272,7 +305,7 @@
 
   <!-- Screensaver overlay -->
   <div id="screensaver" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;cursor:none;">
-    <video id="screensaver-video" src="videos/screensaver-flying-windows.mp4" loop muted playsinline preload="none"
+    <video id="screensaver-video" data-src="videos/screensaver-flying-windows.mp4" loop muted playsinline preload="none"
            style="width:100%;height:100%;object-fit:cover;"></video>
   </div>
 </body>

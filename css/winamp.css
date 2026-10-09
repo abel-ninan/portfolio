@@ -33,6 +33,7 @@
   display: flex;
   align-items: center;
   cursor: move;
+  touch-action: none; /* dragged with pointer events, also by finger */
   background:
     repeating-linear-gradient(180deg,
       #6f7a86 0 1px, #5a646f 1px 2px, #4c5560 2px 3px);
@@ -302,3 +303,38 @@
 
 /* hidden state for toggled panels */
 .winamp.wa-hidden { display: none !important; }
+
+/* ════════ PHONES ════════
+   winampLayout() (js/winamp.js) scales each panel's skin (.wa-inner) with a
+   transform and sizes the panel to match, so the skin looks exactly the same,
+   just fitted to the screen. */
+.winamp.wa-scaled > .wa-inner {
+  width: 344px; /* the skin's own width (350px panel minus its frame) */
+  transform-origin: 0 0;
+}
+body.is-phone .winamp { touch-action: none; }
+body.is-phone .wa-pl-list { touch-action: pan-y; }
+
+/* Invisible hit areas around the tiny buttons */
+body.is-phone .wa-tb-btn,
+body.is-phone .wa-tp,
+body.is-phone .wa-tg,
+body.is-phone .wa-pl-mtp { position: relative; }
+body.is-phone .wa-tb-btn::after,
+body.is-phone .wa-tp::after,
+body.is-phone .wa-tg::after,
+body.is-phone .wa-pl-mtp::after {
+  content: '';
+  position: absolute;
+}
+body.is-phone .wa-tb-btn::after { top: -4px; bottom: -6px; left: -3px; right: -3px; }
+body.is-phone #win-winamp .wa-tb-btn::after { top: -10px; bottom: -8px; }
+body.is-phone #win-winamp .wa-tb-btn:first-child::after { left: -14px; right: -1px; }
+body.is-phone .wa-tb-btn:last-child::after { left: -1px; right: -8px; }
+/* (kept clear of the seek bar above and of the next panel below) */
+body.is-phone .wa-tp::after { top: 0; bottom: -6px; left: 0; right: 0; }
+body.is-phone .wa-tg::after { top: -2px; bottom: -2px; left: -2px; right: -2px; }
+body.is-phone .wa-pl-mtp::after { top: -8px; bottom: -8px; left: 0; right: 0; }
+
+/* Taller playlist rows; seven still fit the list's 150px, so it keeps its size */
+body.is-phone .wa-pl-row { padding-top: 3px; padding-bottom: 3px; }

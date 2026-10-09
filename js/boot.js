@@ -28,7 +28,7 @@ function reboot() {
 
   const clickMsg = document.createElement('div');
   clickMsg.style.cssText = 'display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:16px;cursor:pointer;';
-  clickMsg.innerHTML = `<p style="color:#fff;font-family:'MS Sans Serif',sans-serif;font-size:16px;animation:blinkText 1.2s step-start infinite;">Click to start Windows 95</p>`;
+  clickMsg.innerHTML = `<p style="color:#fff;font-family:'w95fa','MS Sans Serif',sans-serif;font-size:16px;animation:blinkText 1.2s step-start infinite;">${isPhone() ? 'Tap' : 'Click'} to start Windows 95</p>`;
 
   screen.innerHTML = `<video id="reboot-video" playsinline muted autoplay style="width:100%;height:100%;object-fit:contain;background:#000;display:block;"><source src="videos/mmjdxbwbsb3b1.mp4" type="video/mp4"></video>`;
   screen.appendChild(clickMsg);

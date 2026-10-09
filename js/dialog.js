@@ -6,7 +6,7 @@ function showShutdown() {
   if (!backdrop) {
     backdrop = document.createElement('div');
     backdrop.id = 'shutdown-backdrop';
-    backdrop.style.cssText = 'position:fixed;inset:0 0 40px 0;background:rgba(0,0,0,0.25);z-index:999;pointer-events:none;';
+    backdrop.style.cssText = 'position:fixed;inset:0 0 var(--taskbar-total, 40px) 0;background:rgba(0,0,0,0.25);z-index:999;pointer-events:none;';
     document.body.appendChild(backdrop);
   }
   openWindow('shutdown');
@@ -17,38 +17,37 @@ function hideDialog() {
   if (backdrop) backdrop.remove();
 }
 function doLogoff() {
-  const F = "'w95fa','MS Sans Serif',Tahoma,sans-serif";
-  const btn = `min-width:72px;height:23px;background:#c0c0c0;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;border:none;cursor:pointer;font-family:${F};font-size:13px;color:#000;`;
-  const field = `flex:1;height:18px;border:none;box-shadow:inset -1px -1px 0 #dfdfdf,inset 1px 1px 0 #848584,inset -2px -2px 0 #fefefe,inset 2px 2px 0 #0a0a0a;padding:0 3px;font-family:${F};font-size:13px;background:#fff;outline:none;`;
   document.body.innerHTML = `
-    <div style="background:#008080;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;">
-      <div style="background:#c0c0c0;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #dfdfdf,inset -2px -2px 0 #848584,inset 2px 2px 0 #fefefe;width:440px;padding:3px;">
-        <div style="background:#060084;color:#fff;font-family:${F};font-size:13px;font-weight:bold;padding:2px 5px;display:flex;align-items:center;height:22px;margin-bottom:0;">
-          Welcome to Windows
-        </div>
-        <div style="display:flex;gap:0;padding:12px 10px 18px;">
-          <div style="flex-shrink:0;width:52px;display:flex;align-items:flex-start;justify-content:center;padding-top:4px;">
-            <img src="img/login-icon.png" style="width:40px;height:36px;image-rendering:pixelated;">
+    <div class="logon-screen">
+      <div class="logon-box" role="dialog" aria-labelledby="logon-title">
+        <div class="logon-title" id="logon-title">Welcome to Windows</div>
+        <form class="logon-body" id="logon-form" autocomplete="off">
+          <div class="logon-icon">
+            <img src="img/login-icon.png" alt="">
           </div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-            <p style="margin:0 0 8px;font-family:${F};font-size:13px;">Type a user name and password to log on to Windows.</p>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="font-family:${F};font-size:13px;width:86px;flex-shrink:0;"><u>U</u>ser name:</label>
-              <input id="login-user" type="text" value="Nat" style="${field}">
+          <div class="logon-fields">
+            <p>Type a user name and password to log on to Windows.</p>
+            <div class="logon-row">
+              <label for="login-user"><u>U</u>ser name:</label>
+              <input id="login-user" class="logon-field" type="text" value="Abel" autocapitalize="off" autocorrect="off" spellcheck="false">
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="font-family:${F};font-size:13px;width:86px;flex-shrink:0;"><u>P</u>assword:</label>
-              <input id="login-pass" type="password" style="${field}">
+            <div class="logon-row">
+              <label for="login-pass"><u>P</u>assword:</label>
+              <input id="login-pass" class="logon-field" type="password">
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:4px;margin-left:10px;flex-shrink:0;">
-            <button onclick="location.reload()" style="${btn}">OK</button>
-            <button onclick="location.reload()" style="${btn}">Cancel</button>
+          <div class="logon-buttons">
+            <button type="submit" class="logon-btn">OK</button>
+            <button type="button" class="logon-btn" id="logon-cancel">Cancel</button>
           </div>
-        </div>
+        </form>
       </div>
     </div>`;
-  setTimeout(() => { const u = document.getElementById('login-user'); if (u) { u.focus(); u.select(); } }, 50);
+  // Any answer logs back on (reloads the desktop).
+  document.getElementById('logon-form').addEventListener('submit', e => { e.preventDefault(); location.reload(); });
+  document.getElementById('logon-cancel').addEventListener('click', () => location.reload());
+  // No auto-focus on phones: it would pop the keyboard over the dialog.
+  if (!isPhone()) setTimeout(() => { const u = document.getElementById('login-user'); if (u) { u.focus(); u.select(); } }, 50);
 }
 
 function doShutdownAction() {
@@ -63,14 +62,14 @@ function doShutdownAction() {
   } else if (opt === 'msdos') {
     document.body.innerHTML = `
       <style>
-        #dos-screen { background:#000; width:100vw; height:100vh; padding:12px 16px; font-family:'Courier New',Courier,monospace; font-size:16px; color:#aaaaaa; overflow:hidden; display:flex; flex-direction:column; cursor:text; box-sizing:border-box; }
+        #dos-screen { background:#000; width:100%; height:100vh; height:var(--app-height, 100vh); height:100dvh; padding:12px 16px; padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)); font-family:'Courier New',Courier,monospace; font-size:16px; color:#aaaaaa; overflow-x:hidden; overflow-y:auto; display:flex; flex-direction:column; cursor:text; box-sizing:border-box; }
         #dos-output { white-space:pre-wrap; word-break:break-all; }
         #dos-input-line { display:flex; align-items:center; }
         #dos-prompt { white-space:nowrap; }
         #dos-input { background:transparent; border:none; outline:none; color:#aaaaaa; font-family:'Courier New',Courier,monospace; font-size:16px; flex:1; caret-color:#aaaaaa; padding:0; margin:0; }
         @keyframes dosBlink { 0%,100%{opacity:1} 50%{opacity:0} }
       </style>
-      <div id="dos-screen" onclick="document.getElementById('dos-input').focus()">
+      <div id="dos-screen">
         <div id="dos-output">Microsoft(R) MS-DOS(R) Version 7.0
            (C)Copyright Microsoft Corp 1981-1995.
 
@@ -83,6 +82,7 @@ function doShutdownAction() {
 
     const input = document.getElementById('dos-input');
     const output = document.getElementById('dos-output');
+    document.getElementById('dos-screen').addEventListener('click', () => input.focus());
     input.focus();
 
     input.addEventListener('keydown', function(e) {
@@ -116,13 +116,14 @@ function doShutdownAction() {
         setTimeout(() => location.reload(), 1200);
       } else {
         output.textContent += line + response + '\n';
-        output.scrollTop = output.scrollHeight;
+        const dos = document.getElementById('dos-screen');
+        dos.scrollTop = dos.scrollHeight;
       }
     });
 
   } else {
     document.body.innerHTML = `
-      <div style="background:#000;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;">
+      <div style="background:#000;width:100%;height:100vh;height:var(--app-height, 100vh);height:100dvh;display:flex;align-items:center;justify-content:center;">
         <img src="img/shutdown-screen.jpg" style="max-width:100%;max-height:100%;display:block;">
       </div>`;
   }
@@ -150,6 +151,17 @@ const RUN_COMMANDS = {
   'winamp': 'winamp',
   'welcome': 'welcome',
   'recycle': 'recycle', 'recycle bin': 'recycle',
+  // Portfolio
+  'resume': 'resume', 'cv': 'resume', 'resume.doc': 'resume', 'wordpad': 'resume', 'write': 'resume',
+  'projects': 'projects', 'my projects': 'projects', 'portfolio': 'projects',
+  'contact': 'contact', 'contact me': 'contact', 'email': 'contact', 'mail': 'contact', 'msimn': 'contact', 'outlook': 'contact',
+  'bio': 'bio', 'about': 'bio', 'abel': 'bio',
+  'documents': 'documents', 'photos': 'photos',
+  'certifications': 'certifications', 'certifications.txt': 'certifications', 'certs': 'certifications',
+  // Web shortcuts: open the profile in a new tab, then Run just closes
+  // ('shortcut' is not a window type, so openWindow ignores it).
+  get 'linkedin'() { openExternal(PORTFOLIO.links.linkedin); return 'shortcut'; },
+  get 'github'() { openExternal(PORTFOLIO.links.github); return 'shortcut'; },
 };
 
 function doRun() {
@@ -158,8 +170,23 @@ function doRun() {
   const raw = input.value.trim();
   if (!raw) return;
 
-  // Web address -> open Internet Explorer and navigate there.
-  if (/^(https?:\/\/|www\.)/i.test(raw) || /^[\w-]+\.(com|net|org|io|dev|ca|co)(\/|$)/i.test(raw)) {
+  // Looked up with hasOwnProperty first: reading the linkedin / github
+  // entries opens a tab, so they are only read once a command matched.
+  const lower = raw.toLowerCase();
+  const runTarget = key => (Object.prototype.hasOwnProperty.call(RUN_COMMANDS, key) ? RUN_COMMANDS[key] : null);
+  const openTarget = target => {
+    openWindow(target);
+    closeWindow('run');
+  };
+
+  // An exact program name first, so command.com is not taken for a web address.
+  let target = runTarget(lower);
+  if (target) { openTarget(target); return; }
+
+  // Web address (www.x, https://x, x.com/..., en.wikipedia.org/...) ->
+  // open Internet Explorer and navigate there.
+  if (/^(https?:\/\/|www\.)/i.test(raw) ||
+      /^([a-z0-9-]+\.)+(com|net|org|io|dev|ca|co|edu|gov|us|uk|ai|app|me|tv|info|gg|xyz)(:\d+)?([\/?#]\S*)?$/i.test(raw)) {
     openWindow('ie');
     setTimeout(() => { if (typeof ieLoad === 'function') ieLoad(raw); }, 60);
     closeWindow('run');
@@ -173,18 +200,14 @@ function doRun() {
     return;
   }
 
-  // Normalize: lowercase, drop any path prefix and a trailing .exe/.com extension.
-  const cmd = raw.toLowerCase()
+  // Normalize: drop any path prefix and a trailing .exe/.com extension.
+  const cmd = lower
     .replace(/^.*[\\/]/, '')
     .replace(/\.(exe|com|cpl|bat|scr)$/, '')
     .trim();
 
-  const target = RUN_COMMANDS[cmd] || RUN_COMMANDS[raw.toLowerCase()];
-  if (target) {
-    openWindow(target);
-    closeWindow('run');
-    return;
-  }
+  target = runTarget(cmd);
+  if (target) { openTarget(target); return; }
 
   // Unknown -> authentic Win95 "cannot find file" error (Run stays open).
   runError(raw);
@@ -193,17 +216,17 @@ function doRun() {
 function runError(name) {
   const F = "'w95fa','MS Sans Serif',Tahoma,sans-serif";
   const old = document.getElementById('run-error'); if (old) old.remove();
-  const safe = name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safe = escapeHTML(name);
 
   const back = document.createElement('div');
   back.id = 'run-error';
   back.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;';
   const frame = 'background:#c0c0c0;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;';
   back.innerHTML = `
-    <div style="${frame}width:400px;padding:3px;font-family:${F};">
+    <div style="${frame}width:400px;max-width:calc(100vw - 16px);padding:3px;font-family:${F};">
       <div style="background:#7f787f;color:#fff;font-size:13px;font-weight:bold;padding:3px 4px 3px 6px;display:flex;align-items:center;height:20px;">
         <span style="flex:1;">Run</span>
-        <button onclick="document.getElementById('run-error').remove()" style="width:18px;height:16px;background:#c0c0c0;border:none;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;cursor:pointer;font-family:${F};font-size:11px;line-height:1;color:#000;">&#10005;</button>
+        <button id="run-error-x" aria-label="Close" style="width:18px;height:16px;background:#c0c0c0;border:none;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;cursor:pointer;font-family:${F};font-size:11px;line-height:1;color:#000;">&#10005;</button>
       </div>
       <div style="display:flex;gap:14px;padding:18px 16px 14px;align-items:flex-start;">
         <svg width="32" height="32" viewBox="0 0 32 32" style="flex-shrink:0;">
@@ -221,7 +244,12 @@ function runError(name) {
   const ok = document.getElementById('run-error-ok');
   const dismiss = () => { back.remove(); document.removeEventListener('keydown', onKey); const ri = document.getElementById('run-input'); if (ri) ri.focus(); };
   const onKey = (e) => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); dismiss(); } };
-  ok.onclick = dismiss;
-  document.addEventListener('keydown', onKey);
-  setTimeout(() => ok.focus(), 0);
+  ok.addEventListener('click', dismiss);
+  document.getElementById('run-error-x').addEventListener('click', dismiss);
+  // Next tick: the Enter that ran the command is still bubbling and would close it at once.
+  setTimeout(() => {
+    if (!back.isConnected) return;
+    document.addEventListener('keydown', onKey);
+    ok.focus();
+  }, 0);
 }

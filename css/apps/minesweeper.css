@@ -1,12 +1,43 @@
 /* ════════════════════════════════
    MINESWEEPER
    ════════════════════════════════ */
+/* Window body: menubar, then counters and board. The board shrinks and
+   scrolls when the window is capped (phones), never the counters. */
+.mine-body {
+  display: flex;
+  flex-direction: column;
+  background: var(--c-material);
+  touch-action: manipulation; /* quick taps never zoom the page */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.mine-menubar { position: relative; }
+.mine-menubar .menu-item.mine-menu-open {
+  background-color: #000080;
+  color: #fff;
+}
+.mine-main {
+  flex: 0 0 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+}
 .mine-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 4px 6px;
   box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080, inset -2px -2px 0px #c1c1c1, inset 2px 2px 0px #000000;
+}
+.mine-header-mid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .mine-lcd {
   background: #000;
@@ -24,7 +55,8 @@
   border-bottom-color: #ffffff;
   border-right-color: #ffffff;
 }
-.mine-face-btn {
+.mine-face-btn,
+.mine-flag-btn {
   width: 34px;
   height: 34px;
   font-size: 18px;
@@ -37,36 +69,84 @@
   justify-content: center;
   padding: 0;
   line-height: 1;
+  touch-action: manipulation;
 }
-.mine-face-btn:active {
+.mine-face-btn:active,
+.mine-flag-btn:active {
   box-shadow: var(--shadow-btn-active);
 }
-.mine-field-border {
-  box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080, inset -2px -2px 0px #c1c1c1, inset 2px 2px 0px #000000;
-  display: inline-block;
+/* Flag mode: only on touch screens (right-click flags with a mouse) */
+.mine-flag-btn {
+  display: none;
+  width: 30px;
+  font-size: 16px;
 }
+.mine-touch .mine-flag-btn { display: flex; }
+/* On: pressed in, with the Win95 checked-button dither */
+.mine-flag-btn.active {
+  box-shadow: var(--shadow-btn-active);
+  background-color: #dfdfdf;
+  background-image:
+    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%),
+    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%);
+  background-size: 2px 2px;
+  background-position: 0 0, 1px 1px;
+  padding: 2px 0 0 2px;
+}
+.mine-field-border {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 3px;
+  box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080, inset -2px -2px 0px #c1c1c1, inset 2px 2px 0px #000000;
+}
+.mine-field-scroll {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+/* Only when the board does not fit (js sets these): it shrinks to the
+   window and scrolls under the counters. */
+.mine-scrolling .mine-main,
+.mine-scrolling .mine-field-border,
+.mine-scrolling .mine-field-scroll {
+  flex-shrink: 1;
+}
+.mine-field-scroll.mine-scroll-x,
+.mine-field-scroll.mine-scroll-y {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.mine-field-scroll.mine-scroll-x { overflow-x: auto; }
+.mine-field-scroll.mine-scroll-y { overflow-y: auto; }
 .mine-grid {
   display: grid;
-  padding: 3px;
+  touch-action: manipulation; /* pan the board if it scrolls; no double-tap zoom */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .mine-cell {
-  width: 22px;
-  height: 22px;
+  width: var(--mine-cell, 22px);
+  height: var(--mine-cell, 22px);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
-  font-size: 13px;
+  font-size: var(--mine-font, 13px);
   font-weight: bold;
   cursor: default;
   box-shadow: var(--shadow-btn);
   background: var(--c-material);
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
-.mine-cell-revealed {
+.mine-cell-revealed,
+.mine-cell-pressed {
   box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080;
   background: var(--c-material);
-  font-size: 13px;
 }
 .mine-cell-exploded {
   background: #ff0000;
@@ -76,10 +156,33 @@
 }
 .mine-cell-wrongflag {
   background: var(--c-material);
+  text-decoration: line-through;
 }
+.mine-grid.mine-flag-mode .mine-cell:not(.mine-cell-revealed) { cursor: pointer; }
+
+/* Game menu */
+.mine-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  min-width: 160px;
+  max-width: 100%; /* never wider than the window */
+  padding: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--c-material);
+  box-shadow: var(--shadow-window-frame);
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+}
+.mine-menu[hidden] { display: none; }
 .mine-menu-item {
-  padding: 3px 20px;
+  display: flex;
+  align-items: center;
+  padding: 3px 20px 3px 0;
   cursor: default;
+  white-space: nowrap;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
   font-size: 13px;
 }
@@ -87,3 +190,35 @@
   background: #000080;
   color: #fff;
 }
+.mine-menu-check {
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.mine-menu-key { margin-left: auto; padding-left: 24px; }
+.mine-menu-sep {
+  border-top: 1px solid var(--c-border-dark);
+  border-bottom: 1px solid var(--c-border-lightest);
+  margin: 2px 0;
+}
+
+/* ════════════════════════════════
+   MINESWEEPER ON PHONES
+   Cell size comes from js/apps/minesweeper.js (--mine-cell).
+   ════════════════════════════════ */
+body.is-phone .mine-main { padding: 4px; }
+body.is-phone .mine-menubar .menu-item { padding: 4px 10px; }
+body.is-phone .mine-face-btn,
+body.is-phone .mine-flag-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+body.is-phone .mine-header { padding: 4px 5px; }
+body.is-phone .mine-menu { min-width: min(200px, 100%); }
+body.is-phone .mine-menu-item {
+  min-height: 40px;
+  font-size: 16px;
+  cursor: pointer;
+}
+body.is-phone .mine-menu-check { width: 26px; }

@@ -261,6 +261,108 @@
 }
 
 /* ════════════════════════════════
+   LOG ON SCREEN  (Shut Down > log on as a different user, js/dialog.js)
+   ════════════════════════════════ */
+.logon-screen {
+  background: #008080;
+  width: 100%;
+  height: 100vh;
+  height: var(--app-height, 100vh);
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+}
+.logon-box {
+  background: #c0c0c0;
+  box-shadow: inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #dfdfdf, inset -2px -2px 0 #848584, inset 2px 2px 0 #fefefe;
+  width: 440px;
+  max-width: calc(100vw - 16px);
+  padding: 3px;
+}
+.logon-title {
+  background: #060084;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  font-weight: bold;
+  padding: 2px 5px;
+  display: flex;
+  align-items: center;
+  height: 22px;
+}
+.logon-body {
+  display: flex;
+  padding: 12px 10px 18px;
+}
+.logon-icon {
+  flex-shrink: 0;
+  width: 52px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+.logon-icon img {
+  width: 40px;
+  height: 36px;
+  image-rendering: pixelated;
+}
+.logon-fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.logon-fields p { margin: 0 0 8px; }
+.logon-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logon-row label {
+  width: 86px;
+  flex-shrink: 0;
+}
+.logon-field {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  border: none;
+  box-shadow: inset -1px -1px 0 #dfdfdf, inset 1px 1px 0 #848584, inset -2px -2px 0 #fefefe, inset 2px 2px 0 #0a0a0a;
+  padding: 0 3px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fff;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.logon-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+.logon-btn {
+  min-width: 72px;
+  height: 23px;
+  background: #c0c0c0;
+  box-shadow: inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #fefefe, inset -2px -2px 0 #848584, inset 2px 2px 0 #dfdfdf;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: #000;
+}
+.logon-btn:active {
+  box-shadow: inset 1px 1px 0 #0a0a0a, inset -1px -1px 0 #fefefe, inset 2px 2px 0 #848584, inset -2px -2px 0 #dfdfdf;
+}
+
+/* ════════════════════════════════
    SCROLLBARS
    ════════════════════════════════ */
 ::-webkit-scrollbar { width: 32px; min-height: 32px; }

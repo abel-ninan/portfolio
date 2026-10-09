@@ -1,0 +1,219 @@
+/* ════════════════════════════════
+   PHONE MODE
+   Loaded after every other stylesheet. body.is-phone is set by isPhone() in
+   js/state.js: max-width 768px, or a coarse pointer with max-height 500px
+   (landscape phones). Desktop sizes are untouched by this file.
+   ════════════════════════════════ */
+body.is-phone {
+  --taskbar-h: 44px;
+  --taskbar-total: calc(var(--taskbar-h) + var(--safe-bottom));
+  -webkit-tap-highlight-color: transparent;
+}
+body.is-phone [data-open],
+body.is-phone [data-href],
+body.is-phone [data-action] {
+  cursor: pointer; /* iOS only sends clicks to elements that look clickable */
+}
+
+/* ════════════════════════════════
+   DESKTOP ICONS
+   Portrait: 3-column grid. Landscape: icons flow down then across, so every
+   icon is visible above the taskbar. The wrapper scrolls as a last resort.
+   ════════════════════════════════ */
+body.is-phone #desktop-icons {
+  right: 0;
+  grid-auto-flow: row;
+  grid-template-rows: none;
+  grid-template-columns: repeat(3, 84px);
+  grid-auto-rows: max-content;
+  gap: 6px;
+  padding: 10px;
+  align-content: start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.is-phone .desktop-icon { width: 84px; }
+
+@media (orientation: landscape) {
+  body.is-phone #desktop-icons {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-template-rows: repeat(auto-fill, 86px);
+    grid-auto-rows: 86px;
+    grid-auto-columns: 84px;
+    gap: 0 6px;
+    padding: 8px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+
+/* ════════════════════════════════
+   WINDOWS
+   Normal windows open maximized (full desktop); maximize toggles a floating
+   window with an 8px margin. Dialog windows (WINDOW_DEFS[type].dialog) are
+   content-height boxes centered by fitWindow().
+   ════════════════════════════════ */
+body.is-phone .window { min-width: 0; }
+body.is-phone .window.maximized { box-shadow: var(--shadow-window-frame); }
+
+body.is-phone .window-titlebar {
+  height: 36px;
+  line-height: 36px;
+}
+body.is-phone .window-controls { gap: 3px; }
+body.is-phone .win-btn {
+  width: 32px;
+  height: 28px;
+}
+body.is-phone .win-btn img {
+  width: 16px !important;
+  height: 16px !important;
+}
+body.is-phone .resize-handle { display: none; }
+
+body.is-phone .window.is-dialog:not(.maximized) {
+  height: auto !important;
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 16px);
+}
+body.is-phone .window.is-dialog:not(.maximized) > .window-body {
+  flex: 0 1 auto;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Bigger dialog buttons and inputs that never trigger iOS focus-zoom (< 16px) */
+body.is-phone .dialog-btn {
+  min-height: 32px;
+  font-size: 15px;
+}
+body.is-phone input:not([type="range"]):not([type="radio"]):not([type="checkbox"]):not([type="button"]):not([type="submit"]),
+body.is-phone textarea,
+body.is-phone select {
+  font-size: 16px !important;
+}
+body.is-phone .address-input,
+body.is-phone .ie-address-input { height: 30px; }
+body.is-phone #win-run div:has(> #run-input) { height: 32px !important; }
+
+/* Shut Down dialog: radio rows easy to hit */
+body.is-phone #win-shutdown p,
+body.is-phone #win-shutdown label,
+body.is-phone .dialog-option {
+  font-size: 15px !important;
+}
+body.is-phone #win-shutdown label,
+body.is-phone .dialog-option {
+  min-height: 36px;
+}
+body.is-phone #win-shutdown input[type="radio"],
+body.is-phone .dialog-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+}
+
+/* Log on screen (js/dialog.js) */
+body.is-phone .logon-field { height: 30px; }
+body.is-phone .logon-btn { min-height: 34px; font-size: 15px; }
+@media (max-width: 480px) {
+  body.is-phone .logon-body { flex-wrap: wrap; }
+  body.is-phone .logon-row label { width: 78px; }
+  body.is-phone .logon-buttons {
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 12px 0 0;
+    gap: 8px;
+  }
+}
+
+/* ════════════════════════════════
+   WIN95 SCROLLBAR WIDGETS
+   Notepad, Bio and MS-DOS draw their own wheel-driven scrollbar. On phones
+   the text scrolls natively by touch and the drawn track is hidden.
+   ════════════════════════════════ */
+body.is-phone .notepad-ta,
+body.is-phone .dos-screen {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+body.is-phone .notepad-ta ~ .notepad-vscroll,
+body.is-phone .dos-screen ~ .notepad-vscroll {
+  display: none !important;
+}
+
+/* ════════════════════════════════
+   TASKBAR
+   ════════════════════════════════ */
+body.is-phone #start-btn {
+  width: 98px;
+  height: 36px;
+  background-size: 98px 36px;
+}
+body.is-phone .taskbar-sep { height: 32px; }
+body.is-phone #taskbar-windows {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+body.is-phone #taskbar-windows::-webkit-scrollbar { display: none; }
+body.is-phone .taskbar-btn {
+  height: 36px;
+  min-width: 44px;
+  font-size: 14px;
+}
+body.is-phone #systray {
+  height: 36px;
+  padding: 0 6px;
+  gap: 6px;
+}
+@media (max-width: 380px) {
+  body.is-phone #systray-speaker { display: none; }
+}
+
+/* ════════════════════════════════
+   START MENU  (drill-down panel replaces the flyouts)
+   ════════════════════════════════ */
+body.is-phone #start-menu {
+  width: 240px;
+  max-width: calc(100% - var(--safe-left) - var(--safe-right));
+  max-height: calc(100% - var(--taskbar-total) - var(--safe-top));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.is-phone .start-menu-item {
+  min-height: 40px;
+  padding: 4px 10px 4px 8px;
+  font-size: 16px;
+}
+body.is-phone #ssm-back {
+  min-height: 40px;
+  font-size: 16px;
+}
+body.is-phone #ssm-items .start-submenu-item {
+  min-height: 40px;
+  padding: 4px 10px 4px 8px;
+  gap: 8px;
+  font-size: 16px;
+}
+body.is-phone #ssm-items .start-submenu-item img {
+  width: 24px;
+  height: 24px;
+}
+body.is-phone .context-item {
+  padding: 10px 20px 10px 24px;
+  font-size: 15px;
+}
+
+/* ════════════════════════════════
+   NARROW SCREENS  (moved from css/apps/explorer.css)
+   ════════════════════════════════ */
+@media (max-width: 480px) {
+  .taskbar-btn { min-width: 44px; padding: 0 4px; }
+  .window { min-width: 160px; }
+}

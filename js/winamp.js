@@ -1,18 +1,35 @@
 // ════════════════════════════════
 //  WINAMP  (classic 2.x player)
 // ════════════════════════════════
+// Three bare panels in #desktop: #win-winamp (created by openWindow), plus
+// #win-winampeq and #win-winamppl. Each panel's skin sits in a .wa-inner
+// wrapper.
+//   desktop  panels drag independently, exactly as the original
+//   phone    winampLayout() scales every skin with a transform so the visible
+//            panels fit the screen (one column, or two side by side in
+//            landscape), sizes each panel to match, and drags them as a
+//            group. Panels that would get too small are hidden; the EQ / PL
+//            buttons bring them back. Sliders follow a finger anywhere near
+//            them (winampSliderDown), and tiny buttons get invisible hit areas.
 const WINAMP = {
   open: false,
   ctx: null, audio: null, analyser: null, freqData: null,
-  filters: null, preamp: null, panner: null,
+  filters: null, preamp: null, panner: null, volGain: null,
   current: 3, playing: false, started: false,
   remaining: false,            // time display mode
   shuffle: false, repeat: false, eqOn: true,
   eqVisible: true, plVisible: true,
+  volume: 0.8,
   peaks: [], mx: 0,
   visCanvas: null, marqueeEl: null,
   bands: [], preampEl: null,
   raf: null,
+  phone: false,                // panels are laid out by winampLayout()
+  phonePos: null,              // group position after the user dragged it (phones)
+  slide: null,                 // slider being dragged by finger
+  seeking: false,
+  deskH: null,                 // unscaled panel heights, for re-stacking on desktop
+  ro: null, shown: false,
   // Listed names/durations match the target skin (titles & artist names aren't copyrightable);
   // actual playable audio is the bundled CC0 chiptunes, cycled across the entries.
   tracks: [
@@ -28,6 +45,13 @@ const WINAMP = {
 
 const WA_FREQS  = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
 const WA_LABELS = ['70', '180', '320', '600', '1K', '3K', '6K', '12K', '14K', '16K'];
+
+const WA_PANEL_IDS  = ['win-winamp', 'win-winampeq', 'win-winamppl'];
+const WA_INNER_W    = 344;  // skin width: 350px panel minus 2px padding + 1px border per side
+const WA_FRAME      = 6;    // that padding + border, both sides
+const WA_MARGIN     = 8;    // gap to the screen edges on phones
+const WA_MIN_SCALE  = 0.72; // below this a panel is hidden instead of shrunk further
+const WA_MAX_SCALE  = 1.35;
 
 // ---- glyphs ----
 const WA_GLYPH = {
@@ -59,14 +83,20 @@ function waFormatLCD(sec) {
 function buildWinampWindow(win, type) {
   WINAMP.open = true;
   WINAMP.peaks = new Array(19).fill(0);
+  WINAMP.eqVisible = true;
+  WINAMP.plVisible = true;
+  WINAMP.phone = false;
+  WINAMP.phonePos = null;
+  WINAMP.slide = null;
+  WINAMP.seeking = false;
 
   win.classList.add('wa-focused');
-  win.innerHTML = `
+  win.innerHTML = `<div class="wa-inner">
     <div class="wa-titlebar">
       <div class="wa-title">WINAMP</div>
       <div class="wa-tb-btns">
-        <button class="wa-tb-btn" title="Minimize" onclick="minimizeWindow('winamp')">${WA_GLYPH.min}</button>
-        <button class="wa-tb-btn" title="Close" onclick="closeWindow('winamp')">${WA_GLYPH.close}</button>
+        <button class="wa-tb-btn" id="wa-min" title="Minimize" aria-label="Minimize">${WA_GLYPH.min}</button>
+        <button class="wa-tb-btn" id="wa-close" title="Close" aria-label="Close">${WA_GLYPH.close}</button>
       </div>
     </div>
     <div class="wa-main-body">
@@ -87,8 +117,8 @@ function buildWinampWindow(win, type) {
         </div>
       </div>
       <div class="wa-sliders">
-        <input type="range" class="wa-slider wa-vol" id="wa-vol" min="0" max="100" value="80">
-        <input type="range" class="wa-slider wa-bal" id="wa-bal" min="-100" max="100" value="0">
+        <input type="range" class="wa-slider wa-vol" id="wa-vol" min="0" max="100" value="${Math.round(WINAMP.volume * 100)}" aria-label="Volume">
+        <input type="range" class="wa-slider wa-bal" id="wa-bal" min="-100" max="100" value="0" aria-label="Balance">
       </div>
       <div class="wa-toggles">
         <span class="wa-tg wa-on" id="wa-eq-btn">EQ</span>
@@ -97,7 +127,7 @@ function buildWinampWindow(win, type) {
         <span class="wa-tg" id="wa-shuffle">SHUFFLE</span>
         <span class="wa-tg" id="wa-repeat">REPEAT</span>
       </div>
-      <input type="range" class="wa-slider wa-seek" id="wa-seek" min="0" max="1000" value="0">
+      <input type="range" class="wa-slider wa-seek" id="wa-seek" min="0" max="1000" value="0" aria-label="Seek">
       <div class="wa-transport">
         <button class="wa-tp" id="wa-prev"  title="Previous">${WA_GLYPH.prev}</button>
         <button class="wa-tp" id="wa-play"  title="Play">${WA_GLYPH.play}</button>
@@ -107,7 +137,7 @@ function buildWinampWindow(win, type) {
         <button class="wa-tp wa-eject" id="wa-eject" title="Eject">${WA_GLYPH.eject}</button>
         <div class="wa-logo" title="Winamp"></div>
       </div>
-    </div>`;
+    </div></div>`;
 
   const desktop = document.getElementById('desktop');
   const baseLeft = win.offsetLeft;
@@ -118,10 +148,10 @@ function buildWinampWindow(win, type) {
   eq.className = 'winamp wa-focused';
   eq.id = 'win-winampeq';
   eq.style.cssText = `left:${baseLeft}px;top:${stackTop}px;`;
-  eq.innerHTML = `
+  eq.innerHTML = `<div class="wa-inner">
     <div class="wa-titlebar">
       <div class="wa-title">WINAMP EQUALIZER</div>
-      <div class="wa-tb-btns"><button class="wa-tb-btn" title="Close" onclick="winampToggleEq()">${WA_GLYPH.close}</button></div>
+      <div class="wa-tb-btns"><button class="wa-tb-btn" id="wa-eq-close" title="Close" aria-label="Close equalizer">${WA_GLYPH.close}</button></div>
     </div>
     <div class="wa-eq-body">
       <div class="wa-eq-top">
@@ -137,17 +167,17 @@ function buildWinampWindow(win, type) {
           <span>+12 db</span><span>+0 db</span><span>-12 db</span>
         </div>
         <div class="wa-eq-col wa-eq-pre">
-          <input type="range" class="wa-eq-band" id="wa-preamp" min="0" max="100" value="50">
+          <input type="range" class="wa-eq-band" id="wa-preamp" min="0" max="100" value="50" aria-label="Preamp">
           <span class="wa-eq-lbl">PREAMP</span>
         </div>
         <div class="wa-eq-gap"></div>
         ${WA_FREQS.map((f, i) => `
           <div class="wa-eq-col">
-            <input type="range" class="wa-eq-band" data-band="${i}" min="0" max="100" value="50">
+            <input type="range" class="wa-eq-band" data-band="${i}" min="0" max="100" value="50" aria-label="${WA_LABELS[i]} Hz">
             <span class="wa-eq-lbl">${WA_LABELS[i]}</span>
           </div>`).join('')}
       </div>
-    </div>`;
+    </div></div>`;
   desktop.appendChild(eq);
   stackTop += eq.offsetHeight;
 
@@ -156,10 +186,10 @@ function buildWinampWindow(win, type) {
   pl.className = 'winamp wa-focused';
   pl.id = 'win-winamppl';
   pl.style.cssText = `left:${baseLeft}px;top:${stackTop}px;`;
-  pl.innerHTML = `
+  pl.innerHTML = `<div class="wa-inner">
     <div class="wa-titlebar">
       <div class="wa-title">WINAMP PLAYLIST</div>
-      <div class="wa-tb-btns"><button class="wa-tb-btn" title="Close" onclick="winampTogglePl()">${WA_GLYPH.close}</button></div>
+      <div class="wa-tb-btns"><button class="wa-tb-btn" id="wa-pl-close" title="Close" aria-label="Close playlist">${WA_GLYPH.close}</button></div>
     </div>
     <div class="wa-pl-body">
       <div class="wa-pl-list" id="wa-pl-list"></div>
@@ -170,16 +200,19 @@ function buildWinampWindow(win, type) {
         <span class="wa-pl-btn">MISC</span>
         <span class="wa-pl-total" id="wa-pl-total">0:00 / 0:00</span>
         <span class="wa-pl-mini">
-          <button class="wa-pl-mtp" onclick="winampPrev()" title="Previous">${WA_GLYPH.prev}</button>
-          <button class="wa-pl-mtp" onclick="winampPlay()" title="Play">${WA_GLYPH.play}</button>
-          <button class="wa-pl-mtp" onclick="winampPause()" title="Pause">${WA_GLYPH.pause}</button>
-          <button class="wa-pl-mtp" onclick="winampStop()" title="Stop">${WA_GLYPH.stop}</button>
-          <button class="wa-pl-mtp" onclick="winampNext(WINAMP.playing)" title="Next">${WA_GLYPH.next}</button>
+          <button class="wa-pl-mtp" data-wa="prev" title="Previous">${WA_GLYPH.prev}</button>
+          <button class="wa-pl-mtp" data-wa="play" title="Play">${WA_GLYPH.play}</button>
+          <button class="wa-pl-mtp" data-wa="pause" title="Pause">${WA_GLYPH.pause}</button>
+          <button class="wa-pl-mtp" data-wa="stop" title="Stop">${WA_GLYPH.stop}</button>
+          <button class="wa-pl-mtp" data-wa="next" title="Next">${WA_GLYPH.next}</button>
         </span>
         <span class="wa-pl-opts">LIST<br>OPTS</span>
       </div>
-    </div>`;
+    </div></div>`;
   desktop.appendChild(pl);
+
+  // Unscaled heights, used to stack the panels again after phone mode.
+  WINAMP.deskH = { main: win.offsetHeight, eq: eq.offsetHeight };
 
   // ---- refs ----
   WINAMP.visCanvas = win.querySelector('.wa-vis');
@@ -187,7 +220,7 @@ function buildWinampWindow(win, type) {
   WINAMP.preampEl  = document.getElementById('wa-preamp');
   WINAMP.bands     = Array.from(eq.querySelectorAll('.wa-eq-band[data-band]'));
 
-  // ---- audio element (created once) ----
+  // ---- audio element (created once; it only plays after a click / tap) ----
   if (!WINAMP.audio) {
     WINAMP.audio = new Audio();
     WINAMP.audio.preload = 'metadata';
@@ -196,42 +229,91 @@ function buildWinampWindow(win, type) {
       else winampNext(true);
     });
   }
-  WINAMP.audio.volume = 0.8;
+  winampSetVolume(WINAMP.volume);
 
-  // ---- dragging (all three raise together) ----
-  winampDrag(win, win.querySelector('.wa-titlebar'));
-  winampDrag(eq,  eq.querySelector('.wa-titlebar'));
-  winampDrag(pl,  pl.querySelector('.wa-titlebar'));
+  // ---- dragging, raising and finger sliders (all three panels) ----
+  [win, eq, pl].forEach(p => {
+    winampDrag(p, p.querySelector('.wa-titlebar'));
+    p.addEventListener('pointerdown', winampRaise);
+    p.addEventListener('pointerdown', winampSliderDown);
+    p.addEventListener('pointermove', winampSliderMove);
+    p.addEventListener('pointerup', winampSliderUp);
+    p.addEventListener('pointercancel', winampSliderUp);
+    p.addEventListener('touchstart', winampSliderTouch, { passive: false });
+  });
 
   // ---- wire controls ----
-  win.querySelector('#wa-play').onclick  = () => winampPlay();
-  win.querySelector('#wa-pause').onclick = () => winampPause();
-  win.querySelector('#wa-stop').onclick  = () => winampStop();
-  win.querySelector('#wa-prev').onclick  = () => winampPrev();
-  win.querySelector('#wa-next').onclick  = () => winampNext(WINAMP.playing);
-  win.querySelector('#wa-eject').onclick = () => { winampLoad(0, false); winampStop(); };
+  const on = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+  on('wa-min',   () => minimizeWindow('winamp'));
+  on('wa-close', () => closeWindow('winamp'));
+  on('wa-eq-close', () => winampToggleEq());
+  on('wa-pl-close', () => winampTogglePl());
 
-  win.querySelector('#wa-time').onclick = () => { WINAMP.remaining = !WINAMP.remaining; };
-  win.querySelector('#wa-eq-btn').onclick = () => winampToggleEq();
-  win.querySelector('#wa-pl-btn').onclick = () => winampTogglePl();
-  win.querySelector('#wa-shuffle').onclick = (e) => { WINAMP.shuffle = !WINAMP.shuffle; e.target.classList.toggle('wa-on', WINAMP.shuffle); };
-  win.querySelector('#wa-repeat').onclick  = (e) => { WINAMP.repeat  = !WINAMP.repeat;  e.target.classList.toggle('wa-on', WINAMP.repeat); };
+  on('wa-play',  () => winampPlay());
+  on('wa-pause', () => winampPause());
+  on('wa-stop',  () => winampStop());
+  on('wa-prev',  () => winampPrev());
+  on('wa-next',  () => winampNext(WINAMP.playing));
+  on('wa-eject', () => { winampLoad(0, false); winampStop(); });
 
-  win.querySelector('#wa-vol').oninput = (e) => { WINAMP.audio.volume = e.target.value / 100; };
-  win.querySelector('#wa-bal').oninput = (e) => { if (WINAMP.panner) WINAMP.panner.pan.value = e.target.value / 100; };
-  const seek = win.querySelector('#wa-seek');
-  seek.oninput = (e) => { const a = WINAMP.audio; if (a.duration) a.currentTime = e.target.value / 1000 * a.duration; };
+  on('wa-time',    () => { WINAMP.remaining = !WINAMP.remaining; });
+  on('wa-eq-btn',  () => winampToggleEq());
+  on('wa-pl-btn',  () => winampTogglePl());
+  on('wa-shuffle', e => { WINAMP.shuffle = !WINAMP.shuffle; e.currentTarget.classList.toggle('wa-on', WINAMP.shuffle); });
+  on('wa-repeat',  e => { WINAMP.repeat  = !WINAMP.repeat;  e.currentTarget.classList.toggle('wa-on', WINAMP.repeat); });
+
+  pl.querySelector('.wa-pl-mini').addEventListener('click', e => {
+    const b = e.target.closest('[data-wa]');
+    if (!b) return;
+    const act = b.dataset.wa;
+    if (act === 'prev') winampPrev();
+    else if (act === 'play') winampPlay();
+    else if (act === 'pause') winampPause();
+    else if (act === 'stop') winampStop();
+    else if (act === 'next') winampNext(WINAMP.playing);
+  });
+
+  // Playlist: click selects, double-click plays. js/desktop.js turns a single
+  // click / tap on a .wa-pl-row into that double-click, so one tap plays.
+  const list = document.getElementById('wa-pl-list');
+  list.addEventListener('click', e => {
+    const row = e.target.closest('.wa-pl-row');
+    if (row) winampSelectRow(+row.dataset.track);
+  });
+  list.addEventListener('dblclick', e => {
+    const row = e.target.closest('.wa-pl-row');
+    if (row) winampLoad(+row.dataset.track, true);
+  });
+
+  document.getElementById('wa-vol').addEventListener('input', e => winampSetVolume(e.target.value / 100));
+  document.getElementById('wa-bal').addEventListener('input', e => { if (WINAMP.panner) WINAMP.panner.pan.value = e.target.value / 100; });
+  document.getElementById('wa-seek').addEventListener('input', e => {
+    const a = WINAMP.audio;
+    if (a.duration) a.currentTime = e.target.value / 1000 * a.duration;
+  });
 
   // EQ controls
-  document.getElementById('wa-eq-on').onclick = (e) => { WINAMP.eqOn = !WINAMP.eqOn; e.target.classList.toggle('wa-on', WINAMP.eqOn); winampApplyEq(); };
-  WINAMP.preampEl.oninput = () => winampApplyEq();
-  WINAMP.bands.forEach(b => b.oninput = () => winampApplyEq());
+  on('wa-eq-on', e => { WINAMP.eqOn = !WINAMP.eqOn; e.currentTarget.classList.toggle('wa-on', WINAMP.eqOn); winampApplyEq(); });
+  WINAMP.preampEl.addEventListener('input', () => winampApplyEq());
+  WINAMP.bands.forEach(b => b.addEventListener('input', () => winampApplyEq()));
 
   // ---- init view ----
   winampLoad(WINAMP.current, false);
   winampApplyEq();
   winampUpdatePlayState();
   winampRaise();
+
+  // Phones: fit the panels to the screen now, and again whenever Winamp is
+  // restored from the taskbar (its size goes from 0 back to real).
+  winampLayout();
+  if (WINAMP.ro) WINAMP.ro.disconnect();
+  WINAMP.shown = true;
+  WINAMP.ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+    const shown = win.offsetWidth > 0;
+    if (shown && !WINAMP.shown) requestAnimationFrame(() => winampLayout());
+    WINAMP.shown = shown;
+  }) : null;
+  if (WINAMP.ro) WINAMP.ro.observe(win);
 
   if (WINAMP.raf) cancelAnimationFrame(WINAMP.raf);
   WINAMP.raf = requestAnimationFrame(winampTick);
@@ -272,16 +354,32 @@ function winampInitAudio() {
   WINAMP.analyser.fftSize = 256;
   WINAMP.analyser.smoothingTimeConstant = 0.78;
   WINAMP.freqData = new Uint8Array(WINAMP.analyser.frequencyBinCount);
+  // Volume as a gain node: iOS ignores <audio>.volume.
+  WINAMP.volGain = ctx.createGain();
 
   let node = src;
   WINAMP.filters.forEach(f => { node.connect(f); node = f; });
   node.connect(WINAMP.preamp); node = WINAMP.preamp;
   if (WINAMP.panner) { node.connect(WINAMP.panner); node = WINAMP.panner; }
   node.connect(WINAMP.analyser);
-  WINAMP.analyser.connect(ctx.destination);
+  WINAMP.analyser.connect(WINAMP.volGain);
+  WINAMP.volGain.connect(ctx.destination);
 
   WINAMP.ctx = ctx;
+  winampSetVolume(WINAMP.volume);
+  const bal = document.getElementById('wa-bal');
+  if (bal && WINAMP.panner) WINAMP.panner.pan.value = bal.value / 100;
   winampApplyEq();
+}
+
+function winampSetVolume(v) {
+  WINAMP.volume = Math.max(0, Math.min(1, v));
+  if (WINAMP.volGain) {
+    WINAMP.volGain.gain.value = WINAMP.volume;
+    if (WINAMP.audio) WINAMP.audio.volume = 1;
+  } else if (WINAMP.audio) {
+    WINAMP.audio.volume = WINAMP.volume;
+  }
 }
 
 function winampApplyEq() {
@@ -314,18 +412,20 @@ function winampLoad(i, autoplay) {
   else winampUpdatePlayState();
 }
 
+// Only ever called from a click / tap, so browsers allow the audio to start.
 function winampPlay() {
   winampInitAudio();
-  const start = () => {
-    if (!WINAMP.audio.src) winampLoad(WINAMP.current, false);
-    const p = WINAMP.audio.play();
-    if (p && p.catch) p.catch(err => console.warn('[winamp] playback was blocked:', err));
-    WINAMP.playing = true; WINAMP.started = true;
-    winampUpdatePlayState();
-  };
-  // Resume the context BEFORE playing — feeding a suspended graph yields silence.
-  if (WINAMP.ctx && WINAMP.ctx.state === 'suspended') WINAMP.ctx.resume().then(start, start);
-  else start();
+  // Resume a suspended graph and start the element in the same gesture
+  // (iOS only allows play() inside it); sound flows once the graph resumes.
+  if (WINAMP.ctx && WINAMP.ctx.state === 'suspended') {
+    const r = WINAMP.ctx.resume();
+    if (r && r.catch) r.catch(() => {});
+  }
+  if (!WINAMP.audio.src) winampLoad(WINAMP.current, false);
+  const p = WINAMP.audio.play();
+  if (p && p.catch) p.catch(err => console.warn('[winamp] playback was blocked:', err));
+  WINAMP.playing = true; WINAMP.started = true;
+  winampUpdatePlayState();
 }
 
 function winampPause() {
@@ -375,9 +475,8 @@ function winampRenderPlaylist() {
   const list = document.getElementById('wa-pl-list');
   if (!list) return;
   list.innerHTML = WINAMP.tracks.map((t, i) => `
-    <div class="wa-pl-row${i === WINAMP.current ? ' wa-playing' : ''}" id="wa-pl-row-${i}"
-         onclick="winampSelectRow(${i})" ondblclick="winampLoad(${i}, true)">
-      <span class="wa-pl-name">${t.num}. ${t.artist} - ${t.title}</span>
+    <div class="wa-pl-row${i === WINAMP.current ? ' wa-playing' : ''}" id="wa-pl-row-${i}" data-track="${i}">
+      <span class="wa-pl-name">${t.num}. ${escapeHTML(t.artist)} - ${escapeHTML(t.title)}</span>
       <span class="wa-pl-dur">${waFormat(t.dur)}</span>
     </div>`).join('');
   const total = WINAMP.tracks.reduce((a, t) => a + t.dur, 0);
@@ -392,52 +491,267 @@ function winampSelectRow(i) {
 // ════════════════════════════════
 //  PANELS  (show / hide / focus / drag)
 // ════════════════════════════════
-function winampToggleEq() {
-  WINAMP.eqVisible = !WINAMP.eqVisible;
+function winampSetEqVisible(on) {
+  WINAMP.eqVisible = on;
   const p = document.getElementById('win-winampeq');
-  if (p) p.style.display = WINAMP.eqVisible ? '' : 'none';
+  if (p) p.style.display = on ? '' : 'none';
   const b = document.getElementById('wa-eq-btn');
-  if (b) b.classList.toggle('wa-on', WINAMP.eqVisible);
+  if (b) b.classList.toggle('wa-on', on);
+}
+function winampSetPlVisible(on) {
+  WINAMP.plVisible = on;
+  const p = document.getElementById('win-winamppl');
+  if (p) p.style.display = on ? '' : 'none';
+  const b = document.getElementById('wa-pl-btn');
+  if (b) b.classList.toggle('wa-on', on);
+}
+function winampToggleEq() {
+  winampSetEqVisible(!WINAMP.eqVisible);
+  if (WINAMP.phone) winampLayout(WINAMP.eqVisible ? 'win-winampeq' : null);
 }
 function winampTogglePl() {
-  WINAMP.plVisible = !WINAMP.plVisible;
-  const p = document.getElementById('win-winamppl');
-  if (p) p.style.display = WINAMP.plVisible ? '' : 'none';
-  const b = document.getElementById('wa-pl-btn');
-  if (b) b.classList.toggle('wa-on', WINAMP.plVisible);
+  winampSetPlVisible(!WINAMP.plVisible);
+  if (WINAMP.phone) winampLayout(WINAMP.plVisible ? 'win-winamppl' : null);
 }
 
+function winampPanels() {
+  return WA_PANEL_IDS.map(id => document.getElementById(id)).filter(Boolean);
+}
+function winampVisiblePanels() {
+  return winampPanels().filter(p => p.style.display !== 'none');
+}
+
+// Bring all three panels to the front together (only when something else
+// is above them, so z-index does not climb on every tap).
 function winampRaise() {
+  if (!document.getElementById('win-winamp')) return;
   focusWindow('winamp');
-  ['win-winamp', 'win-winampeq', 'win-winamppl'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.zIndex = ++windowZIndex;
+  const parts = ['win-winampeq', 'win-winamppl', 'win-winamp'].map(id => document.getElementById(id)).filter(Boolean);
+  const onTop = parts.every((p, i) => +p.style.zIndex === windowZIndex - (parts.length - 1 - i));
+  if (!onTop) parts.forEach(p => { p.style.zIndex = ++windowZIndex; });
+}
+
+// Title-bar drag with pointer capture (mouse, pen and touch). Desktop drags
+// one panel; phones drag the whole stack. Always kept inside the desktop.
+function winampDrag(panel, handle) {
+  let drag = null;
+  handle.addEventListener('pointerdown', e => {
+    if (e.button > 0 || e.target.closest('.wa-tb-btn')) return;
+    const parts = WINAMP.phone ? winampVisiblePanels() : [panel];
+    drag = {
+      id: e.pointerId, x: e.clientX, y: e.clientY,
+      parts: parts.map(p => ({ p, l: p.offsetLeft, t: p.offsetTop, w: p.offsetWidth, h: p.offsetHeight })),
+    };
+    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = getDesktopSize();
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    drag.parts.forEach(o => {
+      l = Math.min(l, o.l); t = Math.min(t, o.t);
+      r = Math.max(r, o.l + o.w); b = Math.max(b, o.t + o.h);
+    });
+    const dx = Math.max(-l, Math.min(d.w - r, e.clientX - drag.x));
+    const dy = Math.max(-t, Math.min(d.h - b, e.clientY - drag.y));
+    drag.parts.forEach(o => {
+      o.p.style.left = (o.l + dx) + 'px';
+      o.p.style.top  = (o.t + dy) + 'px';
+    });
+    if (WINAMP.phone) WINAMP.phonePos = { x: l + dx, y: t + dy };
+  });
+  const end = e => { if (drag && e.pointerId === drag.id) drag = null; };
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
+}
+
+// ════════════════════════════════
+//  PHONE LAYOUT
+// ════════════════════════════════
+// Best arrangement of the visible panels: one column, or (landscape) the
+// player column beside the last panel. Returns { cols, scale }.
+function winampPlan(panels, dw, dh) {
+  const aw = dw - WA_MARGIN * 2, ah = dh - WA_MARGIN * 2;
+  const innerH = p => p.firstElementChild.offsetHeight;
+  const colScale = (col, maxS) =>
+    Math.min(maxS, (ah - WA_FRAME * col.length) / col.reduce((s, p) => s + innerH(p), 0));
+
+  let best = { cols: [panels], scale: Math.min(WA_MAX_SCALE, colScale(panels, (aw - WA_FRAME) / WA_INNER_W)) };
+  if (panels.length > 1) {
+    const cols = [panels.slice(0, -1), panels.slice(-1)];
+    const maxS = Math.min(WA_MAX_SCALE, (aw - WA_FRAME * 2) / (WA_INNER_W * 2));
+    const s = Math.min(colScale(cols[0], maxS), colScale(cols[1], maxS));
+    if (s > best.scale + 0.01) best = { cols, scale: s };
+  }
+  return best;
+}
+
+// keep: id of a panel the user just turned on (hidden last if space runs out).
+function winampLayout(keep) {
+  const main = document.getElementById('win-winamp');
+  if (!main || !WINAMP.open) return;
+  if (!isPhone()) { if (WINAMP.phone) winampLeavePhone(); return; }
+  if (main.style.display === 'none') return; // minimized: laid out again on restore
+
+  WINAMP.phone = true;
+  const all = winampPanels();
+  all.forEach(p => p.classList.add('wa-scaled'));
+  const { w: dw, h: dh } = getDesktopSize();
+
+  // Shrink to fit; if that gets too small, hide the playlist, then the EQ.
+  let plan;
+  for (;;) {
+    const vis = winampVisiblePanels();
+    plan = winampPlan(vis, dw, dh);
+    if (plan.scale >= WA_MIN_SCALE || vis.length < 2) break;
+    const order = keep === 'win-winamppl' ? ['win-winampeq', 'win-winamppl'] : ['win-winamppl', 'win-winampeq'];
+    const victim = order.find(id => id !== keep && vis.some(p => p.id === id));
+    if (!victim) break;
+    if (victim === 'win-winampeq') winampSetEqVisible(false);
+    else winampSetPlVisible(false);
+  }
+
+  const colW = Math.floor(WA_INNER_W * Math.max(0.3, plan.scale) + WA_FRAME);
+  const s = (colW - WA_FRAME) / WA_INNER_W;
+  const sized = plan.cols.map(col => col.map(p => ({ p, h: Math.round(p.firstElementChild.offsetHeight * s + WA_FRAME) })));
+  const groupW = colW * plan.cols.length;
+  const groupH = Math.max.apply(null, sized.map(col => col.reduce((sum, o) => sum + o.h, 0)));
+
+  const pos = WINAMP.phonePos || { x: (dw - groupW) / 2, y: WA_MARGIN };
+  const x = Math.round(Math.max(0, Math.min(dw - groupW, pos.x)));
+  const y = Math.round(Math.max(0, Math.min(dh - groupH, pos.y)));
+
+  // Hidden panels get the same scale, so they are ready when shown.
+  all.forEach(p => {
+    p.firstElementChild.style.transform = `scale(${s})`;
+    p.style.width = colW + 'px';
+  });
+  sized.forEach((col, ci) => {
+    let top = y;
+    col.forEach(o => {
+      o.p.style.height = o.h + 'px';
+      o.p.style.left = (x + ci * colW) + 'px';
+      o.p.style.top = top + 'px';
+      top += o.h;
+    });
+  });
+  WINAMP.scale = s;
+}
+
+// Back to the desktop: unscaled panels stacked under the player again.
+function winampLeavePhone() {
+  WINAMP.phone = false;
+  WINAMP.phonePos = null;
+  const main = document.getElementById('win-winamp');
+  const eq = document.getElementById('win-winampeq');
+  const pl = document.getElementById('win-winamppl');
+  winampPanels().forEach(p => {
+    p.classList.remove('wa-scaled');
+    p.style.width = '';
+    p.style.height = '';
+    p.firstElementChild.style.transform = '';
+  });
+  const { w: dw } = getDesktopSize();
+  const x = Math.max(20, Math.round((dw - 350) / 2)), y = 28; // as in WINDOW_DEFS.winamp.getPos
+  const h = WINAMP.deskH || { main: main.offsetHeight, eq: eq ? eq.offsetHeight : 0 };
+  main.style.left = x + 'px'; main.style.top = y + 'px';
+  if (eq) { eq.style.left = x + 'px'; eq.style.top = (y + h.main) + 'px'; }
+  if (pl) { pl.style.left = x + 'px'; pl.style.top = (y + h.main + h.eq) + 'px'; }
+  if (typeof fitWindow === 'function') fitWindow('winamp', { group: true });
+}
+
+// Re-fit after rotation, resize or a phone <-> desktop switch. Runs after the
+// window manager's own refit in the same frame (its listener is added first).
+let waViewportRaf = 0;
+function winampOnViewportChange() {
+  if (!WINAMP.open || waViewportRaf) return;
+  waViewportRaf = requestAnimationFrame(() => {
+    waViewportRaf = 0;
+    const d = getDesktopSize();
+    if (WINAMP.deskSize && (d.w !== WINAMP.deskSize.w || d.h !== WINAMP.deskSize.h)) WINAMP.phonePos = null;
+    WINAMP.deskSize = d;
+    winampLayout();
   });
 }
+window.addEventListener('resize', winampOnViewportChange);
+window.addEventListener('orientationchange', () => {
+  winampOnViewportChange();
+  setTimeout(winampOnViewportChange, 350); // iOS reports the new size late
+});
+if (window.visualViewport) window.visualViewport.addEventListener('resize', winampOnViewportChange);
 
-function winampDrag(win, handle) {
-  let sx, sy, sl, st, drag = false;
-  const down = (cx, cy) => { drag = true; sx = cx; sy = cy; sl = win.offsetLeft; st = win.offsetTop; winampRaise(); };
-  const move = (cx, cy) => {
-    if (!drag) return;
-    const d = document.getElementById('desktop');
-    win.style.left = Math.max(0, Math.min(d.offsetWidth  - win.offsetWidth,  sl + cx - sx)) + 'px';
-    win.style.top  = Math.max(0, Math.min(d.offsetHeight - win.offsetHeight, st + cy - sy)) + 'px';
-  };
-  handle.addEventListener('mousedown', e => { if (e.target.closest('.wa-tb-btn')) return; down(e.clientX, e.clientY); e.preventDefault(); });
-  handle.addEventListener('touchstart', e => { if (e.target.closest('.wa-tb-btn')) return; down(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-  document.addEventListener('mousemove', e => move(e.clientX, e.clientY));
-  document.addEventListener('touchmove', e => { if (drag) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-  document.addEventListener('mouseup', () => { drag = false; });
-  document.addEventListener('touchend', () => { drag = false; });
-  win.addEventListener('mousedown', winampRaise);
+// ════════════════════════════════
+//  FINGER SLIDERS  (phones)
+// ════════════════════════════════
+// On phones the panel moves the slider nearest to the finger (tap to jump,
+// drag to slide), so the 10px thumbs never have to be hit exactly. The
+// range inputs' own touch handling is switched off while that happens.
+function winampSliderAt(panel, x, y) {
+  let best = null, bestD = Infinity;
+  panel.querySelectorAll('input[type="range"]').forEach(s => {
+    const r = s.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const vertical = s.classList.contains('wa-eq-band');
+    const padX = vertical ? 7 : 4, padY = vertical ? 4 : 9;
+    if (x < r.left - padX || x > r.right + padX || y < r.top - padY || y > r.bottom + padY) return;
+    const dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom);
+    const d = dx * dx + dy * dy;
+    if (d < bestD) { bestD = d; best = s; }
+  });
+  return best;
+}
+
+function winampSliderSet(s, x, y) {
+  const r = s.getBoundingClientRect();
+  const vertical = s.classList.contains('wa-eq-band');
+  const k = vertical ? r.height / (s.offsetHeight || r.height) : r.width / (s.offsetWidth || r.width);
+  const thumb = (vertical ? 6 : s.id === 'wa-seek' ? 24 : 10) * k;
+  const len = (vertical ? r.height : r.width) - thumb;
+  let t = vertical ? (r.bottom - thumb / 2 - y) / len : (x - r.left - thumb / 2) / len;
+  t = Math.max(0, Math.min(1, t));
+  const min = +s.min, max = +s.max;
+  const v = Math.round(min + t * (max - min));
+  if (+s.value !== v) {
+    s.value = v;
+    s.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+function winampSliderDown(e) {
+  if (!document.body.classList.contains('is-phone') || e.button > 0) return;
+  if (e.target.closest('button, .wa-tg, .wa-titlebar, .wa-pl-row, .wa-pl-btn, .wa-pl-opts, .wa-time')) return;
+  const panel = e.currentTarget;
+  const s = winampSliderAt(panel, e.clientX, e.clientY);
+  if (!s) return;
+  e.preventDefault();
+  try { panel.setPointerCapture(e.pointerId); } catch (err) {}
+  WINAMP.slide = { id: e.pointerId, s };
+  WINAMP.seeking = s.id === 'wa-seek';
+  winampSliderSet(s, e.clientX, e.clientY);
+}
+function winampSliderTouch(e) {
+  if (WINAMP.slide && e.cancelable) e.preventDefault();
+}
+function winampSliderMove(e) {
+  const d = WINAMP.slide;
+  if (!d || e.pointerId !== d.id) return;
+  winampSliderSet(d.s, e.clientX, e.clientY);
+}
+function winampSliderUp(e) {
+  const d = WINAMP.slide;
+  if (!d || e.pointerId !== d.id) return;
+  WINAMP.slide = null;
+  WINAMP.seeking = false;
 }
 
 function winampCleanup() {
   WINAMP.open = false;
   if (WINAMP.raf) { cancelAnimationFrame(WINAMP.raf); WINAMP.raf = null; }
+  if (WINAMP.ro) { WINAMP.ro.disconnect(); WINAMP.ro = null; }
   if (WINAMP.audio) { WINAMP.audio.pause(); }
   WINAMP.playing = false; WINAMP.started = false;
+  WINAMP.phone = false; WINAMP.phonePos = null; WINAMP.slide = null; WINAMP.seeking = false;
   ['win-winampeq', 'win-winamppl'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
 }
 
@@ -461,7 +775,7 @@ function winampUpdateTime() {
     else timeEl.textContent = waFormatLCD(val);
   }
   const seek = document.getElementById('wa-seek');
-  if (seek && a.duration && document.activeElement !== seek) {
+  if (seek && a.duration && !WINAMP.seeking && document.activeElement !== seek) {
     seek.value = (a.currentTime / a.duration * 1000) | 0;
   }
   const total = document.getElementById('wa-pl-total');

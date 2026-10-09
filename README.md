@@ -1,61 +1,69 @@
-# Nat Miletic's Windows 95 Portfolio Website
+# Abel Ninan's Windows 95 Portfolio
 
-A nostalgic, interactive Windows 95 desktop simulation built as a personal portfolio — running entirely in the browser with no frameworks or dependencies.
+My portfolio, built as a working Windows 95 desktop in the browser. Open My Projects, the Resume, the Bio or Contact Me straight from the desktop. Every icon opens with a single click or tap, and every window fits on a phone screen.
 
-Open windows, browse files, shut down the computer, and relive the golden era of chunky beveled buttons and teal desktops.
-
-**[View Live Demo →](https://natmiletic.github.io/win-website)**
+**Live site:** [abelninan.com](https://abelninan.com/)
 
 ---
 
-## Features
+## What's on the desktop
 
-- Draggable, resizable windows with authentic Win95 chrome
-- Functional Start Menu with nested submenus and shutdown dialog
-- Welcome screen with rotating "Did you know..." tips
-- My Files explorer with folder navigation (Documents, Photos)
-- Nat Miletic Bio — desktop and file icon opening a styled notepad window
-- Internet Explorer window with retro filter and address bar
-- MS Paint with drawing tools, color palette, and canvas resize handles
-- System tray with live clock and speaker icon
-- Desktop icons including LinkedIn shortcut and Bio file
-- Boot video support with fade-in transition
-- MS-DOS mode, restart, and log off actions
-- Right-click context menu on desktop
-- Custom pixel-art scrollbars with draggable thumbs and arrow buttons
-- Fixedsys and w95fa bitmap fonts for authentic retro typography
-- Organised codebase: split CSS (`css/`) and JS (`js/`) folders by layer
+- **My Projects**: one window per project, with metrics, how it works, the tech stack, diagrams and links. The projects are HairMaxxx, AI Lead Generation Workflow, @historyslides, MarketPulse, Creator Analytics Pipeline and QueryPilot.
+- **Resume**: a WordPad window with my experience, education, skills and certifications. It has a **Download PDF** button and a **Print** button that prints only the resume.
+- **Abel Ninan Bio**: a Notepad window.
+- **Contact Me**: an Outlook Express "New Message" window. **Send** opens your own email app, and there are LinkedIn, GitHub and Copy email buttons.
+- **My Files**:
+  - Documents: the resume PDF, Resume.doc and Certifications.txt.
+  - Photos.
+  - My Projects.
+- **Win95 extras**: My Computer, Internet Explorer, Paint, Notepad, MS-DOS Prompt, Minesweeper, Disk Defragmenter, Winamp, the Run dialog (try `resume`, `projects` or `github`), Shut Down and the Recycle Bin. You can drag desktop icons into the Recycle Bin.
 
----
+## Run it locally
 
-## Built With
+It is plain HTML, CSS and JavaScript. There is no build step and nothing to install.
 
-Pure HTML, CSS, and vanilla JavaScript — no frameworks, no build tools.
+```sh
+python3 -m http.server 8000
+```
 
----
+Then open <http://localhost:8000/>.
 
-## Credits & Acknowledgements
+## Check it
 
-This project draws inspiration and references from several excellent open-source projects:
+`tests/check_site.py` opens the site in Chromium and WebKit (Python Playwright) at phone, tablet and desktop sizes. It taps every icon and opens every window, and it fails if anything is off screen, cut off on the right, too small to tap, or throws an error.
 
-- **[React95](https://github.com/react95-io/React95)** — the gold standard for Windows 95 UI components in React. The border system, color palette, resize handle, and overall theme are closely modelled after React95's original theme.
+```sh
+pip install playwright && python3 -m playwright install chromium webkit
+python3 -I tests/check_site.py http://localhost:8000/ --browser both
+```
 
-- **[95CSS by Yoshi Mannaert](https://github.com/yoshimannaert/95CSS)** — a fantastic CSS-only Win95 stylesheet. Referenced for scrollbar styling and dialog layout patterns.
+## Project structure
 
-- **[w95fa Font](https://fontsarena.com/w95fa-by-alina-sava/)** — the authentic Windows 95 bitmap font used throughout the UI.
+```
+index.html            desktop, taskbar, Start menu and the <script> load order
+css/                  variables (colors, bevels), base, desktop, taskbar,
+                      window, widgets, winamp, mobile (phone overrides, loaded last)
+css/apps/             one stylesheet per app; portfolio.css styles the
+                      portfolio windows
+js/state.js           shared state, phone detection, escapeHTML, icon paths
+js/content.js         all portfolio text and data (PORTFOLIO)
+js/windows.js         open / close / maximize, and keeping windows on screen
+js/desktop.js         Start menu, single-click opening (data-open / data-href /
+                      data-action), Recycle Bin drag and drop
+js/apps/              one file per app; registry.js lists every window type
+img/, fonts/, audio/, videos/, docs/   assets
+```
 
-- **[Fixedsys Excelsior by Darien Valentine](https://fixedsysexcelsior.com)** — the classic Windows bitmap monospace font used in notepad windows.
+To edit the text, change `js/content.js`. Every window reads its copy from there.
 
-- **[Win95/WinXP Icons Pack](https://github.com/awesome-windows95-icons)** — pixel-art icon assets used for the shutdown icon and system tray.
+## Credits
 
-- **[Windows 95 App Icons by Wallpapers Clan](https://wallpapers-clan.com)** — retro-styled app icons including the LinkedIn desktop icon.
+- **[React95](https://github.com/react95-io/React95)**: the border system, color palette and resize handle follow React95's original theme.
+- **[95CSS](https://github.com/yoshimannaert/95CSS)**: a reference for the scrollbar styling and dialog layouts.
+- **[w95fa font](https://fontsarena.com/w95fa-by-alina-sava/)** by Alina Sava: the Windows 95 interface font.
+- **[Fixedsys Excelsior](https://fixedsysexcelsior.com)** by Darien Valentine: the monospace font in Notepad and MS-DOS.
+- **[Win95/WinXP icons pack](https://github.com/awesome-windows95-icons)**: the shutdown and system tray icons.
+- **[Windows 95 app icons by Wallpapers Clan](https://wallpapers-clan.com)**: retro app icons, including the LinkedIn icon.
+- **[Windows 95 UI Kit (Figma)](https://www.figma.com/community/file/1214528480728795592)** and **[Windows 95 Icons (Figma)](https://www.figma.com/community/file/1254078490904184073)**: references for the title bars, buttons, controls and icons.
 
-- **[Windows 95 UI Kit (Figma)](https://www.figma.com/community/file/1214528480728795592)** — comprehensive Figma component library for Windows 95 UI elements, referenced for title bar layout, button specs, and control measurements.
-
-- **[Windows 95 Icons (Figma)](https://www.figma.com/community/file/1254078490904184073)** — pixel-accurate Windows 95 icon assets from the Figma Community, used as reference for icon design and sizing.
-
----
-
-## Author
-
-**Nat Miletic** — [Clio Websites](https://cliowebsites.com) · [LinkedIn](https://linkedin.com/in/natmiletic)
+Windows 95, Internet Explorer, WordPad, Outlook Express and the other product names are trademarks of their owners. This site is a fan tribute and is not affiliated with them.

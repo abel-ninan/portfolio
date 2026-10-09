@@ -1,63 +1,90 @@
 // ════════════════════════════════
 //  DRAG
 // ════════════════════════════════
+// Pointer Events with pointer capture: one code path for mouse, touch and pen,
+// and the listeners only live for the length of a drag (nothing is left on
+// document). The title bar has touch-action:none in window.css.
 function makeDraggable(win, handle, type) {
-  let startX, startY, startL, startT, dragging = false;
+  handle.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || !e.isPrimary) return;
+    if (e.target.closest('.win-btn, .window-controls')) return; // buttons (and their <img>) click normally
+    const state = openWindows[type];
+    if (!state || state.maximized) return; // full-screen / maximized windows don't move
 
-  const onDown = (cx, cy) => {
-    if (openWindows[type].maximized) return;
-    dragging = true;
-    startX = cx; startY = cy;
-    startL = parseInt(win.style.left) || 0;
-    startT = parseInt(win.style.top) || 0;
     focusWindow(type);
-  };
-
-  const onMove = (cx, cy) => {
-    if (!dragging) return;
     const desktop = document.getElementById('desktop');
-    const nx = Math.max(0, Math.min(desktop.offsetWidth  - win.offsetWidth,  startL + cx - startX));
-    const ny = Math.max(0, Math.min(desktop.offsetHeight - win.offsetHeight, startT + cy - startY));
-    win.style.left = nx + 'px';
-    win.style.top  = ny + 'px';
-  };
+    const startX = e.clientX, startY = e.clientY;
+    const startL = win.offsetLeft, startT = win.offsetTop;
+    const maxL = desktop.clientWidth  - win.offsetWidth;
+    const maxT = desktop.clientHeight - win.offsetHeight;
 
-  handle.addEventListener('mousedown', e => {
-    if (e.target.classList.contains('win-btn')) return;
-    onDown(e.clientX, e.clientY);
-    e.preventDefault();
+    const onMove = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      win.style.left = Math.max(0, Math.min(maxL, startL + ev.clientX - startX)) + 'px';
+      win.style.top  = Math.max(0, Math.min(maxT, startT + ev.clientY - startY)) + 'px';
+    };
+    const onEnd = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onEnd);
+      handle.removeEventListener('pointercancel', onEnd);
+      handle.removeEventListener('lostpointercapture', onEnd);
+      if (handle.hasPointerCapture && handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+    };
+
+    try { handle.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone */ }
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+    handle.addEventListener('lostpointercapture', onEnd);
+    e.preventDefault(); // no text selection while dragging
   });
-  handle.addEventListener('touchstart', e => {
-    if (e.target.classList.contains('win-btn')) return;
-    onDown(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
 
-  document.addEventListener('mousemove',  e => onMove(e.clientX, e.clientY));
-  document.addEventListener('touchmove',  e => onMove(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-  document.addEventListener('mouseup',    () => { dragging = false; });
-  document.addEventListener('touchend',   () => { dragging = false; });
-
-  win.addEventListener('mousedown', () => focusWindow(type));
+  // Any press inside the window brings it to the front.
+  win.addEventListener('pointerdown', () => focusWindow(type), true);
 }
 
 // ════════════════════════════════
 //  RESIZE
 // ════════════════════════════════
 function makeResizable(win, handle, type) {
-  let startX, startY, startW, startH, resizing = false;
-
-  handle.addEventListener('mousedown', e => {
-    if (openWindows[type].maximized) return;
-    resizing = true;
-    startX = e.clientX; startY = e.clientY;
-    startW = win.offsetWidth; startH = win.offsetHeight;
+  handle.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || !e.isPrimary) return;
+    const state = openWindows[type];
+    if (!state || state.maximized) return;
     e.preventDefault();
     e.stopPropagation();
+
+    focusWindow(type);
+    const desktop = document.getElementById('desktop');
+    const startX = e.clientX, startY = e.clientY;
+    const startW = win.offsetWidth, startH = win.offsetHeight;
+    // Never grow past the desktop's right or bottom edge.
+    const maxW = desktop.clientWidth  - win.offsetLeft;
+    const maxH = desktop.clientHeight - win.offsetTop;
+
+    const onMove = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      win.style.width  = Math.max(220, Math.min(maxW, startW + ev.clientX - startX)) + 'px';
+      win.style.height = Math.max(160, Math.min(maxH, startH + ev.clientY - startY)) + 'px';
+    };
+    const onEnd = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onEnd);
+      handle.removeEventListener('pointercancel', onEnd);
+      handle.removeEventListener('lostpointercapture', onEnd);
+      if (handle.hasPointerCapture && handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+      if (openWindows[type]) {
+        openWindows[type].prefW = win.offsetWidth;
+        openWindows[type].prefH = win.offsetHeight;
+      }
+    };
+
+    try { handle.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone */ }
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+    handle.addEventListener('lostpointercapture', onEnd);
   });
-  document.addEventListener('mousemove', e => {
-    if (!resizing) return;
-    win.style.width  = Math.max(220, startW + e.clientX - startX) + 'px';
-    win.style.height = Math.max(160, startH + e.clientY - startY) + 'px';
-  });
-  document.addEventListener('mouseup', () => { resizing = false; });
 }

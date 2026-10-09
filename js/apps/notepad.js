@@ -1,6 +1,8 @@
 // ════════════════════════════════
 //  NOTEPAD
 // ════════════════════════════════
+// A real <textarea>. Desktop draws the Win95 scrollbar beside it; phones hide
+// that and scroll the textarea natively by touch (css/mobile.css).
 function buildNotepadWindow(container) {
   container.innerHTML = `
     <div class="window-menubar">
@@ -10,13 +12,13 @@ function buildNotepadWindow(container) {
       <span class="menu-item"><u>H</u>elp</span>
     </div>
     <div class="notepad-edit-row">
-      <textarea class="notepad-ta"></textarea>
+      <textarea class="notepad-ta" aria-label="Notepad text" spellcheck="false"></textarea>
       <div class="notepad-vscroll">
-        <button class="notepad-scroll-btn notepad-scroll-up"></button>
+        <button class="notepad-scroll-btn notepad-scroll-up" tabindex="-1"></button>
         <div class="notepad-vtrack">
           <div class="notepad-vthumb"></div>
         </div>
-        <button class="notepad-scroll-btn notepad-scroll-down"></button>
+        <button class="notepad-scroll-btn notepad-scroll-down" tabindex="-1"></button>
         <div style="width:16px;height:16px;flex-shrink:0;background:#c0c0c0;"></div>
       </div>
     </div>
@@ -24,6 +26,7 @@ function buildNotepadWindow(container) {
   container.style.display = 'flex';
   container.style.flexDirection = 'column';
 
+  const row    = container.querySelector('.notepad-edit-row');
   const ta     = container.querySelector('.notepad-ta');
   const vtrack = container.querySelector('.notepad-vtrack');
   const vthumb = container.querySelector('.notepad-vthumb');
@@ -51,25 +54,60 @@ function buildNotepadWindow(container) {
   vup.addEventListener('click',  () => { ta.scrollTop -= 20; updateVScroll(); });
   vdown.addEventListener('click', () => { ta.scrollTop += 20; updateVScroll(); });
 
-  let vDrag = false, vDragY = 0, vScrollT = 0;
-  vthumb.addEventListener('mousedown', e => {
-    vDrag = true; vDragY = e.clientY; vScrollT = ta.scrollTop; e.preventDefault();
+  // Thumb drag with pointer capture: no document listeners left behind.
+  let vDrag = null;
+  vthumb.addEventListener('pointerdown', e => {
+    vDrag = { id: e.pointerId, y: e.clientY, top: ta.scrollTop };
+    try { vthumb.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
   });
-
-  document.addEventListener('mousemove', e => {
-    if (vDrag) {
-      const scrollable = ta.scrollHeight - ta.clientHeight;
-      ta.scrollTop = vScrollT + (e.clientY - vDragY) * (scrollable / (vtrack.clientHeight - vthumb.offsetHeight));
-      updateVScroll();
-    }
+  vthumb.addEventListener('pointermove', e => {
+    if (!vDrag || e.pointerId !== vDrag.id) return;
+    const scrollable = ta.scrollHeight - ta.clientHeight;
+    const travel = Math.max(1, vtrack.clientHeight - vthumb.offsetHeight);
+    ta.scrollTop = vDrag.top + (e.clientY - vDrag.y) * (scrollable / travel);
+    updateVScroll();
   });
-  document.addEventListener('mouseup', () => { vDrag = false; });
+  const endDrag = () => { vDrag = null; };
+  vthumb.addEventListener('pointerup', endDrag);
+  vthumb.addEventListener('pointercancel', endDrag);
 
   ta.addEventListener('wheel', e => {
+    if (isPhone()) return;
     e.preventDefault();
     ta.scrollTop += e.deltaY;
     updateVScroll();
   }, { passive: false });
 
+  // Phones: while typing, end the text area above the on-screen keyboard
+  // (which covers the window without resizing it), so the caret stays in view.
+  ta.addEventListener('focus', notepadKeyboardFit);
+  ta.addEventListener('blur', notepadKeyboardFit);
+  row.classList.add('notepad-kb-row');
+
   setTimeout(() => { updateVScroll(); }, 50);
+}
+
+let notepadKbRaf = 0;
+function notepadKeyboardFit() {
+  if (notepadKbRaf) return;
+  notepadKbRaf = requestAnimationFrame(() => {
+    notepadKbRaf = 0;
+    const win = document.getElementById('win-notepad');
+    const row = win && win.querySelector('.notepad-kb-row');
+    const ta = row && row.querySelector('.notepad-ta');
+    if (!ta) return;
+    const vv = window.visualViewport;
+    let covered = 0;
+    if (vv && document.activeElement === ta && isPhone()) {
+      const r = row.getBoundingClientRect();
+      covered = Math.max(0, Math.round(r.bottom - (vv.offsetTop + vv.height)));
+      covered = Math.min(covered, Math.max(0, row.clientHeight - 60));
+    }
+    row.style.paddingBottom = covered ? covered + 'px' : '';
+  });
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', notepadKeyboardFit);
+  window.visualViewport.addEventListener('scroll', notepadKeyboardFit);
 }

@@ -1,6 +1,10 @@
 // ════════════════════════════════
 //  DISK DEFRAGMENTER
 // ════════════════════════════════
+// The animation and the progress timer run only while the window is shown:
+// a ResizeObserver on the block map stops them when the window is minimized
+// (display:none gives it a 0x0 size) and starts them again on restore, and
+// everything is torn down when the window is closed.
 function buildDefragWindow(container, type) {
   const BW = 9, BH = 12, GAP = 1;
   const CW = BW + GAP, CH = BH + GAP; // cell stride: 10w × 13h
@@ -34,10 +38,10 @@ function buildDefragWindow(container, type) {
           <div class="defrag-pct" id="${pctId}">0% Complete</div>
         </div>
         <div class="defrag-btns">
-          <button class="dialog-btn" id="dfstop-${type}" style="width:90px"><u>S</u>top</button>
-          <button class="dialog-btn" id="dfpause-${type}" style="width:90px"><u>P</u>ause</button>
-          <button class="dialog-btn" style="width:90px">Legend</button>
-          <button class="dialog-btn" style="width:90px">Hide Details</button>
+          <button class="dialog-btn defrag-btn" id="dfstop-${type}"><u>S</u>top</button>
+          <button class="dialog-btn defrag-btn" id="dfpause-${type}"><u>P</u>ause</button>
+          <button class="dialog-btn defrag-btn">Legend</button>
+          <button class="dialog-btn defrag-btn">Hide Details</button>
         </div>
       </div>
     </div>
@@ -56,10 +60,11 @@ function buildDefragWindow(container, type) {
   const vdown  = container.querySelector('.notepad-scroll-down');
 
   let COLS = 0;
-  let grid, headPos, scrollOffset;
+  let grid, headPos = 0, scrollOffset = 0;
   let lastTs = 0, nextInterval = 200;
   let progressPos = 0, progressTimer = null;
   let paused = false, headBatch = [];
+  let ready = false, running = false, rafId = 0, gridW = 0;
 
   function randInterval() { return 150 + Math.random() * 300; } // 150–450ms
 
@@ -121,6 +126,36 @@ function buildDefragWindow(container, type) {
       for (let c = 0; c < COLS; c++) drawBlock(r * COLS + c);
   }
 
+  function redrawAll() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    const rightMargin = cv.width - COLS * CW;
+    if (rightMargin > 0) { ctx.fillStyle = '#fff'; ctx.fillRect(COLS * CW, 0, rightMargin, cv.height); }
+    drawRowRange(0, ROWS_MAX);
+  }
+
+  // Size the block map to the viewport width. On a later width change
+  // (rotation, phone <-> desktop) the map is rebuilt with the same share
+  // already defragmented, so it never shows a cut-off or empty column.
+  function layoutGrid() {
+    const w = vp.clientWidth;
+    if (!w) return false;
+    if (w === gridW) return true;
+    const done = COLS ? headPos / (ROWS_MAX * COLS) : 0;
+    gridW = w;
+    COLS = Math.max(10, Math.floor(w / CW));
+    cv.width  = w;              // exact viewport width — no black gap on right
+    cv.height = ROWS_MAX * CH;  // pre-allocate full height
+    initGrid(COLS);
+    headPos = Math.floor(done * ROWS_MAX * COLS);
+    for (let i = 0; i < headPos; i++) if (grid[i] === USED) grid[i] = DEFRAG;
+    headBatch = [];
+    redrawAll();
+    updateScrollbar();
+    updateProgress();
+    return true;
+  }
+
   // ── Scrollbar ──────────────────────────────
   function updateScrollbar() {
     const vpH = vp.clientHeight;
@@ -140,46 +175,67 @@ function buildDefragWindow(container, type) {
     vthumb.style.top    = thumbT + 'px';
   }
 
-  function autoScroll() {
-    const scrollable = Math.max(0, ROWS_MAX * CH - vp.clientHeight);
-    if (scrollable > 0 && scrollOffset >= scrollable - CH * 3) {
-      scrollOffset = scrollable;
-      updateScrollbar();
-    }
-  }
-
   vup.addEventListener('click',   () => { scrollOffset -= CH * 3; updateScrollbar(); });
   vdown.addEventListener('click', () => { scrollOffset += CH * 3; updateScrollbar(); });
 
-  let vDrag = false, vDragY = 0, vScrollStart = 0;
-  vthumb.addEventListener('mousedown', e => {
-    vDrag = true; vDragY = e.clientY; vScrollStart = scrollOffset; e.preventDefault();
+  // Thumb drag (mouse, pen or touch) with pointer capture.
+  let vDrag = null;
+  vthumb.addEventListener('pointerdown', e => {
+    vDrag = { id: e.pointerId, y: e.clientY, start: scrollOffset };
+    try { vthumb.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
   });
-  document.addEventListener('mousemove', e => {
-    if (!vDrag) return;
+  vthumb.addEventListener('pointermove', e => {
+    if (!vDrag || e.pointerId !== vDrag.id) return;
     const canH = ROWS_MAX * CH, vpH = vp.clientHeight;
     const scrollable = Math.max(0, canH - vpH);
     const trackH = vtrack.clientHeight;
     const thumbH = Math.max(20, (vpH / canH) * trackH);
-    scrollOffset = vScrollStart + (e.clientY - vDragY) * scrollable / (trackH - thumbH);
+    scrollOffset = vDrag.start + (e.clientY - vDrag.y) * scrollable / Math.max(1, trackH - thumbH);
     updateScrollbar();
   });
-  document.addEventListener('mouseup', () => { vDrag = false; });
+  const endThumb = () => { vDrag = null; };
+  vthumb.addEventListener('pointerup', endThumb);
+  vthumb.addEventListener('pointercancel', endThumb);
+
+  // The block map itself scrolls by wheel, or by dragging it with a finger.
+  vp.addEventListener('wheel', e => {
+    e.preventDefault();
+    scrollOffset += e.deltaY;
+    updateScrollbar();
+  }, { passive: false });
+  let mapDrag = null;
+  vp.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    mapDrag = { id: e.pointerId, y: e.clientY, start: scrollOffset };
+    try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  vp.addEventListener('pointermove', e => {
+    if (!mapDrag || e.pointerId !== mapDrag.id) return;
+    scrollOffset = mapDrag.start - (e.clientY - mapDrag.y);
+    updateScrollbar();
+  });
+  const endMap = () => { mapDrag = null; };
+  vp.addEventListener('pointerup', endMap);
+  vp.addEventListener('pointercancel', endMap);
 
   // ── Progress bar (whole blocks only) ───────
   function updateProgress() {
     const pct = Math.min(100, Math.floor(progressPos / (ROWS_MAX * COLS) * 100));
     const trackW = fillEl.parentElement.clientWidth - 4; // 2px padding each side
-    const maxBlks = Math.floor(trackW / 10);
+    const maxBlks = Math.max(0, Math.floor(trackW / 10));
     fillEl.style.width = (Math.floor(pct / 100 * maxBlks) * 10) + 'px';
     pctEl.textContent = pct + '% Complete';
   }
 
   // ── Animation tick ──────────────────────────
   function tick(ts) {
-    if (!document.getElementById(cvId)) return; // window closed
-    if (paused) { requestAnimationFrame(tick); return; }
-    if (ts - lastTs < nextInterval) { requestAnimationFrame(tick); return; }
+    rafId = 0;
+    if (!running) return;
+    if (!cv.isConnected) { teardown(); return; } // window closed
+    rafId = requestAnimationFrame(tick);
+    if (paused) return;
+    if (ts - lastTs < nextInterval) return;
     lastTs = ts;
     nextInterval = randInterval();
 
@@ -189,13 +245,8 @@ function buildDefragWindow(container, type) {
       headPos = 0;
       headBatch = [];
       scrollOffset = 0;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, cv.width, cv.height);
-      const rightMargin = cv.width - COLS * CW;
-      if (rightMargin > 0) { ctx.fillStyle = '#fff'; ctx.fillRect(COLS * CW, 0, rightMargin, cv.height); }
-      drawRowRange(0, ROWS_MAX);
+      redrawAll();
       updateScrollbar();
-      requestAnimationFrame(tick);
       return;
     }
 
@@ -215,53 +266,64 @@ function buildDefragWindow(container, type) {
       }
       headPos++;
     }
-
-    requestAnimationFrame(tick);
   }
 
-  // ── Init after layout renders ───────────────
-  setTimeout(() => {
-    COLS = Math.max(10, Math.floor(vp.clientWidth / CW));
-
-    cv.width  = vp.clientWidth; // exact viewport width — no black gap on right
-    cv.height = ROWS_MAX * CH;  // pre-allocate full height
-
-    initGrid(COLS);
-    headPos      = 0;
-    headBatch    = [];
-    progressPos  = 0;
-    scrollOffset = 0;
-
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, cv.width, cv.height);
-    const rightMargin = cv.width - COLS * CW;
-    if (rightMargin > 0) { ctx.fillStyle = '#fff'; ctx.fillRect(COLS * CW, 0, rightMargin, cv.height); }
-    drawRowRange(0, ROWS_MAX);
-    updateScrollbar();
-    updateProgress();
-
+  // ── Run / pause with the window's visibility ──
+  function start() {
+    if (running || !ready || !cv.isConnected) return;
+    if (!layoutGrid()) return;
+    running = true;
     // Progress bar runs on its own fixed 100ms timer, independent of animation speed
     progressTimer = setInterval(() => {
-      if (!document.getElementById(cvId)) { clearInterval(progressTimer); return; }
+      if (!cv.isConnected) { teardown(); return; }
+      if (paused) return;
       progressPos++;
       if (progressPos >= ROWS_MAX * COLS) progressPos = 0;
       updateProgress();
     }, 100);
+    rafId = requestAnimationFrame(tick);
+  }
 
-    requestAnimationFrame(tick);
+  function stop() {
+    running = false;
+    if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+  }
 
-    // Wire Stop button
-    const stopBtn = document.getElementById('dfstop-' + type);
-    if (stopBtn) stopBtn.addEventListener('click', () => {
-      clearInterval(progressTimer);
-      closeWindow('defrag');
-    });
+  function teardown() {
+    stop();
+    ready = false;
+    if (ro) ro.disconnect();
+  }
 
-    // Wire Pause button
-    const pauseBtn = document.getElementById('dfpause-' + type);
-    if (pauseBtn) pauseBtn.addEventListener('click', () => {
-      paused = !paused;
-      pauseBtn.innerHTML = paused ? '<u>R</u>esume' : '<u>P</u>ause';
-    });
+  // Fires with a 0x0 size when the window is minimized, its real size when
+  // it is restored or resized, and when the window is removed.
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+    if (!vp.isConnected) { teardown(); return; }
+    if (!ready) return;
+    if (vp.clientWidth === 0) { stop(); return; }
+    if (running) { layoutGrid(); updateScrollbar(); updateProgress(); }
+    else start();
+  }) : null;
+  if (ro) ro.observe(vp);
+
+  // ── Wire buttons ────────────────────────────
+  const stopBtn = document.getElementById('dfstop-' + type);
+  if (stopBtn) stopBtn.addEventListener('click', () => {
+    teardown();
+    closeWindow('defrag');
+  });
+
+  const pauseBtn = document.getElementById('dfpause-' + type);
+  if (pauseBtn) pauseBtn.addEventListener('click', () => {
+    paused = !paused;
+    pauseBtn.innerHTML = paused ? '<u>R</u>esume' : '<u>P</u>ause';
+  });
+
+  // ── Init after layout renders ───────────────
+  setTimeout(() => {
+    if (!cv.isConnected) { teardown(); return; }
+    ready = true;
+    start();
   }, 1000);
 }

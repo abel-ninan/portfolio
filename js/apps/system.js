@@ -28,13 +28,19 @@ function buildShutdownWindow(container) {
       </div>
     </div>
     <div style="display:flex;justify-content:center;gap:8px;padding:30px 14px 12px;">
-      <button class="dialog-btn" onclick="doShutdownAction()"><u>Y</u>es</button>
-      <button class="dialog-btn" onclick="closeWindow('shutdown')"><u>N</u>o</button>
-      <button class="dialog-btn" onclick="closeWindow('shutdown')"><u>H</u>elp</button>
+      <button class="dialog-btn" data-shutdown="yes"><u>Y</u>es</button>
+      <button class="dialog-btn" data-shutdown="no"><u>N</u>o</button>
+      <button class="dialog-btn" data-shutdown="help"><u>H</u>elp</button>
 
     </div>
   `;
   container.style.cssText = 'display:flex;flex-direction:column;';
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('[data-shutdown]');
+    if (!btn) return;
+    if (btn.dataset.shutdown === 'yes') doShutdownAction();
+    else closeWindow('shutdown');
+  });
 }
 
 function buildRunWindow(container) {
@@ -63,15 +69,18 @@ function buildRunWindow(container) {
     <div style="display:flex;align-items:center;gap:8px;padding:0 14px 12px;">
       <label style="${f}white-space:nowrap;">Open:</label>
       <div style="${comboStyle}">
-        <input type="text" id="run-input" style="${inputStyle}" onkeydown="if(event.key==='Enter')doRun()">
+        <input type="text" id="run-input" style="${inputStyle}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         <button style="${dropBtnStyle}"><svg width="7" height="4" viewBox="0 0 7 4" style="display:block;"><polygon points="0,0 7,0 3.5,4" fill="#000000"/></svg></button>
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:6px;padding:5px 14px 24px;">
-      <button class="dialog-btn" onclick="doRun()"><u>O</u>K</button>
-      <button class="dialog-btn" onclick="closeWindow('run')"><u>C</u>ancel</button>
+      <button class="dialog-btn run-ok"><u>O</u>K</button>
+      <button class="dialog-btn run-cancel"><u>C</u>ancel</button>
       <button class="dialog-btn"><u>B</u>rowse...</button>
     </div>
   `;
   container.style.cssText = 'display:flex;flex-direction:column;';
+  container.querySelector('#run-input').addEventListener('keydown', e => { if (e.key === 'Enter') doRun(); });
+  container.querySelector('.run-ok').addEventListener('click', () => doRun());
+  container.querySelector('.run-cancel').addEventListener('click', () => closeWindow('run'));
 }

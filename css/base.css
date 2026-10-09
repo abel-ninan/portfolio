@@ -54,12 +54,27 @@ button, input, select, textarea {
 }
 
 /* ── Base ── */
+html {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;       /* no pull-to-refresh / rubber-band on the desktop */
+  -webkit-text-size-adjust: 100%;  /* no iOS font inflation in landscape */
+  text-size-adjust: 100%;
+}
+/* Pan and pinch-zoom still work, but double-tap never zooms. Zero specificity,
+   so any rule with a class (e.g. title bars' touch-action:none) wins. */
+* { touch-action: manipulation; }
+
 body {
   font-family: "w95fa", 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, Arial, sans-serif;
   font-size: 11px;
   overflow: hidden;
   height: 100vh;
-  width: 100vw;
+  height: var(--app-height, 100vh);
+  height: 100dvh;
+  width: 100%;
+  background-color: var(--c-teal);
+  overscroll-behavior: none;
   user-select: none;
   -webkit-user-select: none;
   cursor: url('../img/cursor-default.png') 0 0, default;

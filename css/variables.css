@@ -55,6 +55,22 @@
     inset  2px  2px 0px #dfdfdf;
 }
 
+/* ── Layout (phone mode overrides these in css/mobile.css) ── */
+:root {
+  /* Notch / home-indicator insets (non-zero only with viewport-fit=cover) */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+
+  /* Taskbar height, and the space it really takes at the bottom of the screen */
+  --taskbar-h: 40px;
+  --taskbar-total: calc(var(--taskbar-h) + var(--safe-bottom));
+
+  /* --app-height is set from window.innerHeight by js/state.js
+     (fallback for browsers without dvh units) */
+}
+
 @font-face {
   font-family: "w95fa";
   src: url("../fonts/w95fa.woff2") format("woff2");
