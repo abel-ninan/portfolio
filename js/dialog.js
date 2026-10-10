@@ -182,6 +182,7 @@ const RUN_COMMANDS = {
   'recycle': 'recycle', 'recycle bin': 'recycle',
   // Portfolio
   'resume': 'resume', 'cv': 'resume', 'resume.doc': 'resume', 'wordpad': 'resume', 'write': 'resume',
+  'skills': 'skills', 'skills.doc': 'skills',
   'projects': 'projects', 'my projects': 'projects', 'portfolio': 'projects',
   'contact': 'contact', 'contact me': 'contact', 'email': 'contact', 'mail': 'contact', 'msimn': 'contact', 'outlook': 'contact',
   'bio': 'bio', 'about': 'bio', 'abel': 'bio',

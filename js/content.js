@@ -131,6 +131,80 @@ const PORTFOLIO = {
     { role: 'Member, Operations Subcommittee', org: 'Committee for the Responsible Use of Artificial Intelligence, Illinois State University', date: '2024' }
   ],
 
+  // My Files > Documents > Skills.doc: the full, expanded skills breakdown.
+  // (The Resume window keeps the shorter `skills` list above.)
+  skillsDoc: {
+    title: 'Skills and Technical Toolkit',
+    roles: 'Data Analyst | Data Engineer | Software Engineer | AI Engineer',
+    intro: 'Everything I work with, grouped the way recruiters search for it. Each section ends with where I have put those skills to work.',
+    sections: [
+      {
+        heading: 'Data Analysis and Business Intelligence',
+        groups: [
+          { label: 'SQL and querying', items: ['SQL', 'CTEs', 'window functions', 'complex joins and aggregations', 'views', 'stored procedures', 'query performance tuning', 'SQL Server Management Studio'] },
+          { label: 'Power BI', items: ['data modeling (star schema)', 'DAX', 'Power Query (M)', 'row-level security', 'paginated reports', 'Power BI Service', 'scheduled refresh and subscriptions', 'deployment pipelines'] },
+          { label: 'Analysis', items: ['deep-dive and ad-hoc analysis', 'KPI and metric definition', 'trend, segment and cohort analysis', 'funnel analysis', 'data validation and QA', 'data storytelling'] },
+          { label: 'Statistics', items: ['descriptive statistics', 'hypothesis testing', 'A/B testing', 'regression', 'SPSS'] },
+          { label: 'Visualization and reporting', items: ['Power BI', 'Tableau', 'Excel (PivotTables, Power Pivot, XLOOKUP, Power Query)', 'Matplotlib', 'dashboard design', 'automated reporting'] },
+          { label: 'Business partnering', items: ['stakeholder intake', 'requirements gathering', 'translating business questions into data requirements', 'documenting definitions and assumptions'] }
+        ],
+        appliedIn: 'Data Analyst at CEFCU, Creator Analytics Pipeline, MarketPulse, HairMaxxx ad-performance analysis.'
+      },
+      {
+        heading: 'Data Engineering',
+        groups: [
+          { label: 'Pipelines and orchestration', items: ['ETL and ELT design', 'SSIS', 'incremental loads', 'change data capture', 'Apache Airflow', 'dbt (tests, snapshots, incremental models)', 'Dask'] },
+          { label: 'Microsoft Fabric', items: ['Lakehouse', 'Warehouse', 'Data Factory pipelines', 'Dataflows Gen2', 'notebooks (PySpark)', 'Eventstream', 'Eventhouse and KQL', 'Direct Lake', 'Data Activator'] },
+          { label: 'Big data and storage', items: ['Apache Spark and PySpark', 'Delta Lake', 'medallion architecture (bronze, silver, gold)', 'Snowflake', 'SQL Server', 'PostgreSQL', 'Supabase'] },
+          { label: 'AWS data services', items: ['Amazon S3', 'AWS Glue', 'Amazon Athena', 'Amazon Redshift', 'AWS Lambda', 'Amazon Kinesis'] },
+          { label: 'Modeling and quality', items: ['dimensional modeling (Kimball)', 'slowly changing dimensions (Type 2)', 'Great Expectations', 'reconciliation checks', 'data lineage and documentation', 'indexing and execution plans'] }
+        ],
+        appliedIn: 'SSIS projects with the CEFCU data engineering team, MarketPulse (Fabric lakehouse), Creator Analytics (Airflow, dbt, Snowflake), Dask cluster for the AI internship, AWS Certified Data Engineer - Associate.'
+      },
+      {
+        heading: 'Software Engineering',
+        groups: [
+          { label: 'Languages', items: ['Python', 'JavaScript', 'TypeScript', 'SQL', 'VB.NET', 'ASP.NET', 'HTML', 'CSS', 'PowerShell', 'Bash'] },
+          { label: 'Web and mobile', items: ['React', 'Vite', 'Tailwind CSS', 'shadcn/ui', 'TanStack Query', 'Zod', 'Capacitor (iOS)', 'App Store release management', 'Shopify Hydrogen', 'GraphQL'] },
+          { label: 'APIs and backend', items: ['REST APIs', 'FastAPI', 'serverless functions (Deno)', 'PostgreSQL schema design', 'input validation and rate limiting', 'in-app purchases (RevenueCat)'] },
+          { label: 'Engineering practices', items: ['Git and GitHub', 'code review', 'CI/CD with GitHub Actions', 'automated testing (pytest, Playwright)', 'debugging and profiling', 'technical documentation', 'Agile and Scrum'] },
+          { label: 'DevOps', items: ['Docker', 'Linux', 'Vercel', 'GitHub Pages', 'monitoring, uptime checks and alerting'] }
+        ],
+        appliedIn: 'HairMaxxx (live on the App Store), this website, QueryPilot, the @historyslides video pipeline (810 automated tests), the Shopify storefront.'
+      },
+      {
+        heading: 'AI and Machine Learning Engineering',
+        groups: [
+          { label: 'LLM applications', items: ['Claude API', 'Gemini API', 'structured outputs (JSON schema)', 'tool and function calling', 'prompt engineering', 'model fallback and retry strategies', 'token and cost optimization'] },
+          { label: 'Agents', items: ['multi-agent orchestration (Claude Code)', 'Model Context Protocol (MCP) servers and tools', 'agent evaluation', 'adversarial review and verification'] },
+          { label: 'Retrieval and data agents', items: ['retrieval-augmented generation (RAG)', 'embeddings', 'vector search (pgvector)', 'text-to-SQL'] },
+          { label: 'Models and training', items: ['PyTorch', 'Hugging Face Transformers', 'fine-tuning with LoRA (PEFT)', 'Whisper speech recognition', 'NLP and summarization', 'evaluation (WER, ROUGE, execution accuracy)'] },
+          { label: 'Vision and media', items: ['OpenCV', 'perceptual hashing', 'ffmpeg', 'text-to-speech (ElevenLabs)'] },
+          { label: 'Responsible AI', items: ['guardrails', 'PII masking', 'prompt-injection defenses', 'human review of model output'] }
+        ],
+        appliedIn: 'HairMaxxx (Gemini), AI Lead Generation Workflow, @historyslides pipeline, Lecture and Meeting AI internship, QueryPilot, AWS Certified AI Practitioner, ISU Committee for the Responsible Use of AI.'
+      },
+      {
+        heading: 'Cloud, Platforms and Tools',
+        groups: [
+          { label: 'Cloud', items: ['AWS', 'Microsoft Azure', 'Microsoft Fabric', 'Supabase', 'Vercel'] },
+          { label: 'Developer tools', items: ['VS Code', 'Git', 'GitHub', 'Confluence', 'Slack'] },
+          { label: 'IT and systems', items: ['Active Directory', 'Microsoft Intune', 'Cherwell Service Management', 'PowerShell automation', 'VMware', 'AutoCAD'] }
+        ],
+        appliedIn: 'Endpoint Support at Illinois State (3,000+ assets, 600-laptop Intune rollout), CEFCU, personal projects.'
+      },
+      {
+        heading: 'Professional Strengths',
+        groups: [
+          { label: 'Leadership', items: ['Chair, Student Technology Advisory Committee', 'student team lead on the AI internship', 'volunteer wrestling coach'] },
+          { label: 'Collaboration', items: ['stakeholder communication', 'cross-team work with data engineers', 'training new hires', 'presenting findings to non-technical audiences'] },
+          { label: 'Delivery', items: ['Agile and Scrum (CSM, CSPO)', 'owning requests end to end', 'clear documentation', 'self-directed learning'] }
+        ],
+        appliedIn: 'CEFCU, ISU DeepLearners, Student Government Association, Endpoint Support, Normal Community High School wrestling.'
+      }
+    ]
+  },
+
   interests: [
     'Wrestling: 13+ years, team captain and state qualifier',
     'Volunteer wrestling coach, Normal Community High School',

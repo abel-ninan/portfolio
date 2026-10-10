@@ -45,6 +45,13 @@ const WINDOW_DEFS = {
     icon: 'resume',
     build: buildResumeWindow,
   },
+  skills: {
+    title: 'Skills.doc - WordPad',
+    taskbarTitle: 'Skills',
+    width: 720, height: 600,
+    icon: 'resume',
+    build: buildSkillsWindow,
+  },
   contact: {
     title: 'New Message',
     taskbarTitle: 'Contact',

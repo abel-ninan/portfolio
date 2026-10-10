@@ -65,6 +65,7 @@ function buildDocumentsWindow(container) {
   buildFolderWindow(container, [
     { name: 'Abel_Ninan_Resume.pdf', icon: ICONS.pdf, href: PORTFOLIO.links.resumePdf, tip: 'Opens the PDF in a new tab' },
     { name: 'Resume.doc',            icon: ICONS.resume, open: 'resume' },
+    { name: 'Skills.doc',            icon: ICONS.resume, open: 'skills' },
     { name: 'Certifications.txt',    icon: ICONS.certificate, open: 'certifications' },
     { name: 'GitHub',                icon: ICONS.github, href: PORTFOLIO.links.github, tip: PORTFOLIO.links.github },
   ]);
