@@ -365,52 +365,56 @@
 /* ════════════════════════════════
    SCROLLBARS
    ════════════════════════════════ */
-::-webkit-scrollbar { width: 32px; min-height: 32px; }
-::-webkit-scrollbar-track {
-  background-color: #fff;
-  background-image:
-    repeating-linear-gradient(45deg,
-      var(--c-gray-100) 25%, transparent 25%, transparent 75%, var(--c-gray-100) 75%, var(--c-gray-100)),
-    repeating-linear-gradient(45deg,
-      var(--c-gray-100) 25%, var(--c-white) 25%, var(--c-white) 75%, var(--c-gray-100) 75%, var(--c-gray-100));
-  background-position: 0 0, 3px 3px;
-  background-size: 6px 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--c-gray-200);
-  box-shadow: var(--shadow-raised);
-  border: none;
-}
-::-webkit-scrollbar-button {
-  background-color: var(--c-gray-200);
-  box-shadow: var(--shadow-raised);
-  display: block;
-  height: 32px;
-  background-repeat: no-repeat;
-  background-position: 50%;
-  background-size: 12px;
-}
+/* Mouse-driven screens only. Touch screens (phones, tablets) keep the
+   browser's own overlay scrollbars, which take no room from the layout. */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar { width: 32px; min-height: 32px; }
+  ::-webkit-scrollbar-track {
+    background-color: #fff;
+    background-image:
+      repeating-linear-gradient(45deg,
+        var(--c-gray-100) 25%, transparent 25%, transparent 75%, var(--c-gray-100) 75%, var(--c-gray-100)),
+      repeating-linear-gradient(45deg,
+        var(--c-gray-100) 25%, var(--c-white) 25%, var(--c-white) 75%, var(--c-gray-100) 75%, var(--c-gray-100));
+    background-position: 0 0, 3px 3px;
+    background-size: 6px 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--c-gray-200);
+    box-shadow: var(--shadow-raised);
+    border: none;
+  }
+  ::-webkit-scrollbar-button {
+    background-color: var(--c-gray-200);
+    box-shadow: var(--shadow-raised);
+    display: block;
+    height: 32px;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: 12px;
+  }
 
-/* Vertical — up arrow (pixel-art style) */
-::-webkit-scrollbar-button:vertical:start:decrement {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M0 9.43h12V7.716H0zm1.714-1.714h8.572V6H8.57V4.287H6.857V2.573H5.143v1.714H3.429v1.714H1.714z' clip-rule='evenodd'/%3E%3C/svg%3E");
-}
-::-webkit-scrollbar-button:vertical:start:increment { display: none; }
-::-webkit-scrollbar-button:vertical:end:decrement { display: none; }
-/* Vertical — down arrow (pixel-art style) */
-::-webkit-scrollbar-button:vertical:end:increment {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M12 2.57H0v1.714h12zm-1.714 1.714H1.714V6H3.43v1.714h1.714v1.714h1.714V7.713h1.714V5.999h1.715z' clip-rule='evenodd'/%3E%3C/svg%3E");
-}
+  /* Vertical — up arrow (pixel-art style) */
+  ::-webkit-scrollbar-button:vertical:start:decrement {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M0 9.43h12V7.716H0zm1.714-1.714h8.572V6H8.57V4.287H6.857V2.573H5.143v1.714H3.429v1.714H1.714z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  ::-webkit-scrollbar-button:vertical:start:increment { display: none; }
+  ::-webkit-scrollbar-button:vertical:end:decrement { display: none; }
+  /* Vertical — down arrow (pixel-art style) */
+  ::-webkit-scrollbar-button:vertical:end:increment {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M12 2.57H0v1.714h12zm-1.714 1.714H1.714V6H3.43v1.714h1.714v1.714h1.714V7.713h1.714V5.999h1.715z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  }
 
-/* Horizontal — left arrow (pixel-art style) */
-::-webkit-scrollbar-button:horizontal:start:decrement {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M9.429 12.002v-12H7.714v12zm-1.715-1.715V1.716H6V3.43H4.286v1.714H2.57V6.86h1.715v1.714H6v1.714z' clip-rule='evenodd'/%3E%3C/svg%3E");
-}
-::-webkit-scrollbar-button:horizontal:start:increment { display: none; }
-::-webkit-scrollbar-button:horizontal:end:decrement { display: none; }
-/* Horizontal — right arrow (pixel-art style) */
-::-webkit-scrollbar-button:horizontal:end:increment {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M2.571.001v12h1.715v-12zm1.715 1.715v8.571H6V8.573h1.714V6.859H9.43V5.144H7.714V3.43H6V1.716z' clip-rule='evenodd'/%3E%3C/svg%3E");
-}
+  /* Horizontal — left arrow (pixel-art style) */
+  ::-webkit-scrollbar-button:horizontal:start:decrement {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M9.429 12.002v-12H7.714v12zm-1.715-1.715V1.716H6V3.43H4.286v1.714H2.57V6.86h1.715v1.714H6v1.714z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  ::-webkit-scrollbar-button:horizontal:start:increment { display: none; }
+  ::-webkit-scrollbar-button:horizontal:end:decrement { display: none; }
+  /* Horizontal — right arrow (pixel-art style) */
+  ::-webkit-scrollbar-button:horizontal:end:increment {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' fill-rule='evenodd' d='M2.571.001v12h1.715v-12zm1.715 1.715v8.571H6V8.573h1.714V6.859H9.43V5.144H7.714V3.43H6V1.716z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  }
 
-::-webkit-scrollbar-corner { background-color: var(--c-gray-200); box-shadow: var(--shadow-raised); }
+  ::-webkit-scrollbar-corner { background-color: var(--c-gray-200); box-shadow: var(--shadow-raised); }
+}

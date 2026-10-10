@@ -21,7 +21,7 @@ function buildDefragWindow(container, type) {
     <div class="defrag-body">
       <div class="defrag-scroll-row">
         <div class="defrag-viewport" id="${vpId}">
-          <canvas id="${cvId}" style="position:absolute;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges;"></canvas>
+          <canvas id="${cvId}" width="0" height="0" style="position:absolute;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges;"></canvas>
         </div>
         <div class="notepad-vscroll">
           <button class="notepad-scroll-btn notepad-scroll-up"></button>

@@ -37,6 +37,8 @@ pip install playwright && python3 -m playwright install chromium webkit
 python3 -I tests/check_site.py http://localhost:8000/ --browser both
 ```
 
+Options: `--browser chromium|webkit|both`, `--only 390x844,1440x900` to test some sizes, `--jobs N` for how many browsers run at once (default 2), and `--shots DIR` to save screenshots. It prints one row per browser and size, then every problem, and exits non-zero if anything failed.
+
 ## Project structure
 
 ```
