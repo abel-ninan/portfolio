@@ -2,7 +2,7 @@
 
 My portfolio, built as a working Windows 95 desktop in the browser. Open My Projects, the Resume, the Bio or Contact Me straight from the desktop. Every icon opens with a single click or tap, and every window fits on a phone screen.
 
-**Live site:** [abel-ninan.github.io/portfolio](https://abel-ninan.github.io/portfolio/)
+**Live site:** [abelninan.com](https://abelninan.com/)
 
 ---
 
