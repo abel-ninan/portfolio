@@ -127,8 +127,8 @@ const PORTFOLIO = {
   ],
 
   leadership: [
-    { role: 'Chair', org: 'Student Technology Advisory Committee, Illinois State University' },
-    { role: 'Member, Operations Subcommittee', org: 'Committee for the Responsible Use of Artificial Intelligence, Illinois State University' }
+    { role: 'Chair', org: 'Student Technology Advisory Committee, Illinois State University', date: '2024' },
+    { role: 'Member, Operations Subcommittee', org: 'Committee for the Responsible Use of Artificial Intelligence, Illinois State University', date: '2024' }
   ],
 
   interests: [

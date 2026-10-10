@@ -297,3 +297,23 @@ body.is-phone .has-submenu > .start-submenu {
   flex: 1;
   overflow-y: auto;
 }
+
+/* Date tooltip above the clock (js/init.js) */
+#clock { cursor: default; }
+#clock-tip {
+  display: none;
+  position: fixed;
+  right: calc(4px + var(--safe-right, 0px));
+  bottom: calc(var(--taskbar-total, 40px) + 4px);
+  z-index: 20002;
+  padding: 2px 6px;
+  background: #ffffe1;
+  border: 1px solid #000;
+  color: #000;
+  font-family: 'w95fa', 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+#clock-tip.visible { display: block; }
+body.is-phone #clock-tip { font-size: 15px; padding: 4px 8px; }

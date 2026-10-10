@@ -46,7 +46,7 @@ function resumePageHTML() {
           <li><b>${escapeHTML(c.name)}</b>, ${escapeHTML(c.issuer)}${c.date ? ` <span class="rs-cert-date">(${escapeHTML(c.date)})</span>` : ''}</li>`).join('');
 
   const leadership = (P.leadership || []).map(l => `
-          <li><b>${escapeHTML(l.role)}</b>, ${escapeHTML(l.org)}${l.note ? `: ${escapeHTML(l.note)}` : ''}</li>`).join('');
+          <li><b>${escapeHTML(l.role)}</b>, ${escapeHTML(l.org)}${l.note ? `: ${escapeHTML(l.note)}` : ''}${l.date ? ` <span class="rs-cert-date">(${escapeHTML(l.date)})</span>` : ''}</li>`).join('');
 
   return `
       <header class="rs-header">

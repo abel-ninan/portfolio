@@ -74,6 +74,8 @@ function buildPhotosWindow(container) {
   buildFolderWindow(container, [
     { name: 'Abel_Ninan.jpg', icon: ICONS.imageFile, action: 'open-image',
       data: { src: 'img/headshot.jpg', name: 'Abel_Ninan.jpg' } },
+    { name: 'Wrestling.jpg', icon: ICONS.imageFile, action: 'open-image',
+      data: { src: 'img/wrestling.jpg', name: 'Wrestling.jpg' } },
   ]);
 }
 
