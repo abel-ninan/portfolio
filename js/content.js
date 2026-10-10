@@ -353,7 +353,7 @@ const PORTFOLIO = {
       subtitle: 'Speech recognition and LLM summaries for Illinois State University, built during my AI internship',
       badge: 'AI internship',
       period: 'Sep. 2023 - Jul. 2024',
-      role: 'AI Intern and student team lead, ISU DeepLearners',
+      role: 'AI Intern and student team lead',
       icon: 'img/icons/deeplearners.png',
       summary: 'As an Artificial Intelligence Intern with Illinois State University\'s DeepLearners group, I led a student team that built an end-to-end system to turn lecture and meeting recordings into searchable transcripts and concise AI summaries. We fine-tuned a Whisper speech-recognition model on lecture audio, scaled transcription across a Dask cluster on Linux, fine-tuned a large language model to write structured summaries, and shipped it all behind a web app backed by a SQL database.',
       hero: {
