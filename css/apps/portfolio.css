@@ -680,7 +680,8 @@
   width: 140px;
   height: 140px;
   flex-shrink: 0;
-  image-rendering: pixelated;
+  object-fit: cover;
+  image-rendering: auto;
 }
 .wl-buttons {
   display: flex;
@@ -772,3 +773,7 @@ body.is-phone .wl-body { font-size: 14px; line-height: 1.5; }
   body.is-phone .wl-photo { width: 100px; height: 100px; }
   body.is-phone .wl-box { gap: 6px; padding: 8px 10px; }
 }
+
+/* Photos and diagrams inside windows are not draggable (no ghost image
+   following the cursor or finger). Desktop icons keep their own drag. */
+.window img { -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none; }

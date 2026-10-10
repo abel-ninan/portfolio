@@ -738,11 +738,11 @@ def run_config(base, engine, w, h, touch, shots):
             if not touch:
                 pg.evaluate(CLOSE_ALL_JS)
                 guard()
-                pg.dblclick('#icon-computer')
+                pg.dblclick('#icon-files')
                 pg.wait_for_timeout(300)
                 st = pg.evaluate('Object.keys(openWindows)')
-                if st != ['computer']:
-                    res['dblclick'].append(f'double-click on My Computer gave {st}')
+                if st != ['files']:
+                    res['dblclick'].append(f'double-click on My Files gave {st}')
                 pg.evaluate(CLOSE_ALL_JS)
                 pg.evaluate("openWindow('documents')")
                 pg.wait_for_timeout(400)

@@ -22,12 +22,11 @@ function buildWelcomeWindow(container) {
             <div class="wl-headline">${escapeHTML(W.headline)}</div>
             <div class="wl-body">${escapeHTML(W.body)}</div>
           </div>
-          <img class="wl-photo" src="img/headshot.png" alt="${escapeHTML(PORTFOLIO.name)}" width="140" height="140">
+          <img class="wl-photo" draggable="false" src="img/headshot.jpg" alt="${escapeHTML(PORTFOLIO.name)}" width="140" height="140">
         </div>
 
         <!-- Right: buttons -->
         <div class="wl-buttons">
-          <button class="dialog-btn wl-btn" data-open="projects">What's <u>N</u>ew</button>
           <button class="dialog-btn wl-btn" data-open="contact"><u>O</u>nline Registration</button>
           <div class="wl-spacer"></div>
           <div class="wl-sep"></div>

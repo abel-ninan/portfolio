@@ -16,7 +16,7 @@ My portfolio, built as a working Windows 95 desktop in the browser. Open My Proj
   - Documents: the resume PDF, Resume.doc and Certifications.txt.
   - Photos.
   - My Projects.
-- **Win95 extras**: My Computer, Internet Explorer, Paint, Notepad, MS-DOS Prompt, Minesweeper, Disk Defragmenter, Winamp, the Run dialog (try `resume`, `projects` or `github`), Shut Down and the Recycle Bin. You can drag desktop icons into the Recycle Bin.
+- **Win95 extras**: Internet Explorer, Paint, Notepad, MS-DOS Prompt, Minesweeper, Disk Defragmenter, Winamp, the Run dialog (try `resume`, `projects` or `github`), Shut Down and the Recycle Bin. You can drag desktop icons into the Recycle Bin.
 
 ## Run it locally
 

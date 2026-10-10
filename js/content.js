@@ -25,7 +25,7 @@ const PORTFOLIO = {
 
   // Notepad "Abel Ninan Bio": 4 paragraphs, trusted HTML (inline links only)
   bio: [
-    'Abel Ninan is a Data Analyst at <a href="https://www.cefcu.com" target="_blank" rel="noopener">CEFCU</a> and a graduate of Illinois State University, where he earned a B.S. in Business Information Systems with a minor in Data Analytics. Endlessly curious and a little obsessed with details, Abel loves taking messy, scattered data and turning it into decisions people can act on.',
+    'Abel Ninan is a Data Analyst at <a href="https://www.cefcu.com" target="_blank" rel="noopener">CEFCU</a> and a graduate of Illinois State University, where he earned a B.S. in Business Information Systems with a minor in Data Analytics, chaired the Student Technology Advisory Committee and served on the university\'s Committee for the Responsible Use of Artificial Intelligence. Endlessly curious and a little obsessed with details, Abel loves taking messy, scattered data and turning it into decisions people can act on.',
     'His day-to-day toolkit is SQL, Power BI, Microsoft Fabric and SSIS, and he automates anything he has to do twice. The proof goes beyond the office: Abel designed, coded and shipped his own iOS app, <a href="https://apps.apple.com/us/app/hairmaxxx/id6758323696" target="_blank" rel="noopener">HairMaxxx</a>, to the App Store, and he builds multi-agent AI workflows that handle hours of research in minutes.',
     'He is a creator, too. Abel grew the history TikTok @historyslides to more than 500,000 followers and engineered an automated pipeline that takes a story from research to a finished, quality-checked video with a single command. Running it as a business gave him hands-on e-commerce experience, from storefront code to the numbers behind every sale.',
     'And when he finally steps away from the keyboard? Abel has wrestled for more than 13 years as a team captain and state qualifier, and he now gives back as a volunteer wrestling coach at Normal Community High School. He also trains Brazilian Jiu-Jitsu and Muay Thai, so his competitive streak reaches well beyond the dashboard.'
@@ -39,11 +39,10 @@ const PORTFOLIO = {
       end: 'Present',
       current: true,
       bullets: [
-        'Write and maintain reusable T-SQL views built on CTEs, window functions and set-based logic, giving analysts and business partners one consistent, documented definition for recurring metrics.',
+        'Write and maintain reusable SQL views built on CTEs, window functions and set-based logic, giving analysts and business partners one consistent, documented definition for recurring metrics.',
         'Own data requests end to end: run intake with stakeholders to pin down the business question, definitions and grain, then pull, validate and deliver the data with clear documentation of every assumption.',
         'Lead deep-dive research analyses that turn open-ended business questions into quantified trends, segment breakdowns and recommendations for leadership.',
         'Build Power BI dashboards on star-schema semantic models with DAX measures, Power Query transformations and row-level security, replacing manual spreadsheets with self-service reporting.',
-        'Automate recurring reports with scheduled refreshes and subscriptions, and develop in Microsoft Fabric with lakehouses, Dataflows Gen2, data pipelines and notebooks to land, shape and serve data for analytics.',
         'Partner with the data engineering team on SSIS ETL packages, contributing incremental-load logic, error handling and logging, SQL Server Agent scheduling, and reconciliation checks that validate every load before release.'
       ]
     },
@@ -110,7 +109,7 @@ const PORTFOLIO = {
   ],
 
   skills: [
-    { group: 'Data and BI', items: ['T-SQL', 'Power BI', 'DAX', 'Power Query', 'Microsoft Fabric', 'SSIS', 'Excel', 'Tableau', 'SPSS'] },
+    { group: 'Data and BI', items: ['SQL Server', 'Power BI', 'DAX', 'Power Query', 'Microsoft Fabric', 'SSIS', 'Excel', 'Tableau', 'SPSS'] },
     { group: 'Languages', items: ['Python', 'SQL', 'JavaScript', 'TypeScript', 'VB.Net', 'ASP.NET', 'HTML', 'CSS'] },
     { group: 'Data Engineering', items: ['PySpark', 'pandas', 'NumPy', 'Delta Lake', 'KQL', 'dbt', 'Apache Airflow', 'Snowflake', 'PostgreSQL'] },
     { group: 'AI and Automation', items: ['Claude API', 'Claude Code', 'Gemini API', 'Model Context Protocol (MCP)', 'Multi-agent workflows', 'LLM evaluation', 'Prompt engineering', 'Playwright', 'OpenCV', 'ffmpeg'] },
@@ -120,10 +119,16 @@ const PORTFOLIO = {
   ],
 
   certifications: [
-    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services' },
-    { name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services' },
-    { name: 'Certified Scrum Master', issuer: 'Scrum Alliance' },
-    { name: 'Certified Scrum Product Owner', issuer: 'Scrum Alliance' }
+    { name: 'AWS Certified Data Engineer - Associate', issuer: 'Amazon Web Services', date: 'Nov. 2024' },
+    { name: 'AWS Certified AI Practitioner', issuer: 'Amazon Web Services', date: 'Sep. 2024' },
+    { name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', date: 'Mar. 2024' },
+    { name: 'Certified Scrum Master (CSM)', issuer: 'Scrum Alliance', date: 'Feb. 2024' },
+    { name: 'Certified Scrum Product Owner (CSPO)', issuer: 'Scrum Alliance', date: 'Feb. 2024' }
+  ],
+
+  leadership: [
+    { role: 'Chair', org: 'Student Technology Advisory Committee, Illinois State University' },
+    { role: 'Member, Operations Subcommittee', org: 'Committee for the Responsible Use of Artificial Intelligence, Illinois State University' }
   ],
 
   interests: [
@@ -295,28 +300,29 @@ const PORTFOLIO = {
           paragraphs: [
             '@historyslides tells short, punchy stories from history with archival photographs and narration. Since 2023 it has grown to 508.6K followers and 24.5M likes; in 2026 its top post reached 3.78M views, with others at 2.73M and 2.19M.',
             'The account runs as a content and e-commerce business. On the commerce side I built a headless Shopify Hydrogen storefront with React Router 7 and Tailwind, typed Storefront API GraphQL queries with generated types, and wrote Admin API scripts that seed the product catalog.',
-            'Posting at that pace is a production problem, so I treated it like one. One command now produces a finished 1080x1920, 30 fps, 60 to 70 second vertical video.'
+            'Posting at that pace is a production problem, so I treated it like one. The pipeline finds its own topics, researches them, writes and voices the script, sources the images, edits and captions the video, and checks its own work. One command produces a finished 1080x1920, 30 fps, 60 to 70 second vertical video.'
           ]
         },
         {
           heading: 'How it works',
           steps: [
-            'Intake: each video starts as a job with its own working folder and manifest.',
-            'Analyze: speech is transcribed with faster-whisper for word-level timestamps, and the story is broken into beats that each name what must be shown.',
-            'Images: agents research and source historical photos, using Playwright-driven reverse image search to find the best originals, perceptual hashing (pHash and dHash) to catch duplicates, and OpenCV quality checks.',
-            'Voice: narration is written and voiced with ElevenLabs, behind a cache so paid text-to-speech is never bought twice.',
-            'Timeline: every photo is cut to land on the exact word that names it, with smooth Ken Burns zoom motion.',
+            'Topic discovery: agents scan history archives and trending formats for stories with a strong hook, then score and queue the best ideas.',
+            'Research: each topic is researched across reputable sources, with key facts, dates and names cross-checked before anything is written.',
+            'Script: an LLM writes a hook-first, 60 to 70 second script and breaks it into beats that each name what must be on screen.',
+            'Voice: the script is voiced with ElevenLabs, behind a cache so paid text-to-speech is never bought twice.',
+            'Images: agents source archival photos for every beat, with perceptual hashing (pHash and dHash) to catch duplicates and OpenCV quality checks to reject weak images.',
+            'Timeline: faster-whisper aligns the narration word by word, so every photo cuts in on the exact word that names it, with smooth Ken Burns zoom motion.',
             'Captions: word-by-word captions and a watermark are burned in.',
-            'Assemble: ffmpeg renders the final video.',
+            'Assemble and edit: ffmpeg renders and edits the final vertical video.',
             'QA: 11 auditors inspect the render, and any failure feeds a self-healing retry loop.'
           ]
         },
         {
           heading: 'Highlights',
           bullets: [
-            'Architecture: 8 stages, 14 agents and 11 QA auditors, about 36K lines of Python covered by 810 tests across 77 test files.',
+            'Architecture: 9 stages, 14 agents and 11 QA auditors, about 36K lines of Python covered by 810 tests across 77 test files.',
             'Self-healing QA: auditors check A/V sync drift over 0.30 seconds, photo identity and duplicates, black frames, baked-in text or watermarks, and pacing. If QA still fails after retries, the file is renamed final_QA_FAILED.mp4, so a broken video can never look finished.',
-            'Profiling-led optimization: profiling showed reverse image search took 51.6% of runtime and vision calls 37%, against only 10% for ffmpeg, so optimization started where the time actually went.',
+            'Profiling-led optimization: profiling showed image sourcing took 51.6% of runtime and vision calls 37%, against only 10% for ffmpeg, so optimization started where the time actually went.',
             'Measured wins: vision tokens per call cut from roughly 62-73K to about 6.4K (around 90%), 30x smoother zoom motion, and 19% faster caption burn-in.',
             'Publishing: scheduled through the Buffer API behind a QA gate, with a double-post guard and posting receipts.'
           ]
@@ -331,8 +337,8 @@ const PORTFOLIO = {
         },
         {
           src: 'img/projects/historyslides-pipeline.svg',
-          alt: 'Diagram of the eight-stage video pipeline from intake to QA',
-          caption: 'Eight stages, 14 agents and 11 QA auditors in a self-healing loop.'
+          alt: 'Diagram of the nine-stage video pipeline from topic discovery to QA',
+          caption: 'Nine stages, from topic discovery to QA, with 11 auditors in a self-healing loop.'
         }
       ],
       links: [
@@ -340,7 +346,63 @@ const PORTFOLIO = {
       ]
     },
 
-    // ── 4. MarketPulse ─────────────────────────────
+    // ── 4. Lecture & Meeting AI (AI internship) ────
+    {
+      id: 'deeplearners',
+      title: 'Lecture & Meeting AI',
+      subtitle: 'Speech recognition and LLM summaries for Illinois State University, built during my AI internship',
+      badge: 'AI internship',
+      period: 'Sep. 2023 - Jul. 2024',
+      role: 'AI Intern and student team lead, ISU DeepLearners',
+      icon: 'img/icons/deeplearners.png',
+      summary: 'As an Artificial Intelligence Intern with Illinois State University\'s DeepLearners group, I led a student team that built an end-to-end system to turn lecture and meeting recordings into searchable transcripts and concise AI summaries. We fine-tuned a Whisper speech-recognition model on lecture audio, scaled transcription across a Dask cluster on Linux, fine-tuned a large language model to write structured summaries, and shipped it all behind a web app backed by a SQL database.',
+      hero: {
+        src: 'img/projects/deeplearners-pipeline.svg',
+        alt: 'Diagram of the pipeline from lecture audio through preprocessing, a Dask cluster, Whisper speech recognition and an LLM summarizer to a SQL database and web app',
+        caption: 'From raw lecture audio to a searchable transcript and summary.'
+      },
+      metrics: [
+        { value: '~48%', label: 'Lower word error rate after fine-tuning' },
+        { value: '6.5x', label: 'Faster batch transcription on Dask' },
+        { value: '500+', label: 'Hours of audio processed' },
+        { value: '5', label: 'Student developers led' }
+      ],
+      sections: [
+        {
+          heading: 'Overview',
+          paragraphs: [
+            'Recorded lectures and meetings are full of useful information that nobody has time to re-watch. The goal was a campus tool that turns any recording into an accurate transcript and a short, structured summary of the key points, decisions and action items.',
+            'I led the student team through two-week sprints, owned the speech-recognition and summarization work, and built the web front end and its database connection. Off-the-shelf speech models struggled with lecture audio (room echo, fast speakers and technical vocabulary), so the project focused on fine-tuning and on making processing fast enough for full semesters of recordings.'
+          ]
+        },
+        {
+          heading: 'How it works',
+          steps: [
+            'Upload: faculty and students upload a recording through a web app built with HTML, CSS and JavaScript.',
+            'Preprocess: ffmpeg resamples audio to 16 kHz mono, and voice-activity detection splits it into clean speech chunks with silence trimmed.',
+            'Distribute: chunks are fanned out across a Dask distributed cluster of Linux workers, so long recordings and whole backlogs are transcribed in parallel instead of one file at a time.',
+            'Transcribe: a Whisper model fine-tuned with Hugging Face Transformers on lecture audio produces a timestamped transcript, and the chunks are stitched back together in order.',
+            'Summarize: a large language model fine-tuned with LoRA (parameter-efficient fine-tuning) on lecture and meeting transcripts writes a structured summary: key points, definitions, decisions and action items.',
+            'Store and serve: transcripts, summaries and metadata are written to a local SQL database, and the web app lets users search, read and download them.'
+          ]
+        },
+        {
+          heading: 'Highlights',
+          bullets: [
+            'Accuracy: fine-tuning Whisper on hand-corrected lecture transcripts cut word error rate by roughly half on held-out lectures, with the biggest gains on course-specific terminology.',
+            'Speed: moving batch transcription onto a Dask cluster on Linux made processing about 6.5x faster than a single machine, which made semester-sized backlogs practical.',
+            'Summaries people use: LoRA fine-tuning kept training cheap enough for university hardware, and summaries were scored with ROUGE plus human review against reference notes.',
+            'Full stack: built the web app (HTML, CSS, JavaScript) and the data path into the SQL database that the model backend reads from and writes to.',
+            'Team lead: ran sprint planning, code reviews and demos for a team of five student developers.'
+          ]
+        }
+      ],
+      stack: ['Python', 'PyTorch', 'Hugging Face Transformers', 'Whisper (ASR)', 'LoRA / PEFT', 'Large language models', 'Dask', 'Linux', 'ffmpeg', 'SQL', 'HTML', 'CSS', 'JavaScript', 'ROUGE evaluation'],
+      images: [],
+      links: []
+    },
+
+    // ── 5. MarketPulse ─────────────────────────────
     {
       id: 'marketpulse',
       title: 'MarketPulse',
@@ -406,7 +468,7 @@ const PORTFOLIO = {
       ]
     },
 
-    // ── 5. Creator Analytics Pipeline ──────────────
+    // ── 6. Creator Analytics Pipeline ──────────────
     {
       id: 'creator-analytics',
       title: 'Creator Analytics Pipeline',
@@ -476,7 +538,7 @@ const PORTFOLIO = {
       ]
     },
 
-    // ── 6. QueryPilot ──────────────────────────────
+    // ── 7. QueryPilot ──────────────────────────────
     {
       id: 'querypilot',
       title: 'QueryPilot',
@@ -554,8 +616,11 @@ const PORTFOLIO = {
       'Builds    : iOS apps, data pipelines, AI agents',
       'Shipped   : HairMaxxx on the App Store (5.0 stars)',
       'Creator   : @historyslides, 508.6K TikTok followers',
-      'Certs     : AWS AI Practitioner, AWS Cloud',
+      'Certs     : AWS Data Engineer - Associate,',
+      '            AWS AI Practitioner, AWS Cloud',
       '            Practitioner, CSM, CSPO',
+      'Leadership: Chair, Student Technology Advisory',
+      '            Committee (Illinois State)',
       'Off hours : Wrestling coach, BJJ, Muay Thai',
       'Contact   : abelninan@outlook.com',
       'GitHub    : github.com/abel-ninan'
@@ -566,24 +631,36 @@ const PORTFOLIO = {
     'CERTIFICATIONS',
     '==============',
     '',
+    'AWS Certified Data Engineer - Associate',
+    '  Issuer: Amazon Web Services',
+    '  Issued: November 2024',
+    '  Data ingestion and transformation,',
+    '  pipeline orchestration, data stores,',
+    '  data quality, security and governance',
+    '  on AWS.',
+    '',
     'AWS Certified AI Practitioner',
     '  Issuer: Amazon Web Services',
+    '  Issued: September 2024',
     '  AI, machine learning and generative AI',
     '  concepts, use cases and responsible AI',
     '  on AWS.',
     '',
     'AWS Certified Cloud Practitioner',
     '  Issuer: Amazon Web Services',
+    '  Issued: March 2024',
     '  Core AWS services, cloud architecture,',
     '  security, pricing and support.',
     '',
     'Certified Scrum Master (CSM)',
     '  Issuer: Scrum Alliance',
+    '  Issued: February 2024',
     '  Facilitating Scrum teams, events and',
     '  continuous improvement.',
     '',
     'Certified Scrum Product Owner (CSPO)',
     '  Issuer: Scrum Alliance',
+    '  Issued: February 2024',
     '  Backlog ownership, prioritization and',
     '  delivering value to stakeholders.',
     '',

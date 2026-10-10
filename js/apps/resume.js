@@ -43,7 +43,10 @@ function resumePageHTML() {
           </div>`).join('');
 
   const certs = P.certifications.map(c => `
-          <li><b>${escapeHTML(c.name)}</b>, ${escapeHTML(c.issuer)}</li>`).join('');
+          <li><b>${escapeHTML(c.name)}</b>, ${escapeHTML(c.issuer)}${c.date ? ` <span class="rs-cert-date">(${escapeHTML(c.date)})</span>` : ''}</li>`).join('');
+
+  const leadership = (P.leadership || []).map(l => `
+          <li><b>${escapeHTML(l.role)}</b>, ${escapeHTML(l.org)}${l.note ? `: ${escapeHTML(l.note)}` : ''}</li>`).join('');
 
   return `
       <header class="rs-header">
@@ -65,6 +68,10 @@ function resumePageHTML() {
         <h2 class="rs-h2">Education</h2>
         ${schools}
       </section>
+      ${leadership ? `<section class="rs-section">
+        <h2 class="rs-h2">Leadership</h2>
+        <ul class="rs-list">${leadership}</ul>
+      </section>` : ''}
       <section class="rs-section">
         <h2 class="rs-h2">Skills</h2>
         <dl class="rs-skills">${skills}</dl>

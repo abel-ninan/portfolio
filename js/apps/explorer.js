@@ -72,8 +72,8 @@ function buildDocumentsWindow(container) {
 
 function buildPhotosWindow(container) {
   buildFolderWindow(container, [
-    { name: 'Abel_Ninan.png', icon: ICONS.imageFile, action: 'open-image',
-      data: { src: 'img/headshot.png', name: 'Abel_Ninan.png' } },
+    { name: 'Abel_Ninan.jpg', icon: ICONS.imageFile, action: 'open-image',
+      data: { src: 'img/headshot.jpg', name: 'Abel_Ninan.jpg' } },
   ]);
 }
 
