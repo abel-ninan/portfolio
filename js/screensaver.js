@@ -18,6 +18,7 @@
 
   function showScreensaver() {
     if (active || disabled()) return;
+    if (!overlay.isConnected) return; // the desktop was replaced (shut down, MS-DOS mode)
     // Focus inside the IE iframe means the user is busy there; so does a hidden tab.
     const a = document.activeElement;
     if (document.hidden || (a && a.tagName === 'IFRAME')) { resetTimer(); return; }

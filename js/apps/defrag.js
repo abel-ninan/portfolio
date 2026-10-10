@@ -40,8 +40,8 @@ function buildDefragWindow(container, type) {
         <div class="defrag-btns">
           <button class="dialog-btn defrag-btn" id="dfstop-${type}"><u>S</u>top</button>
           <button class="dialog-btn defrag-btn" id="dfpause-${type}"><u>P</u>ause</button>
-          <button class="dialog-btn defrag-btn">Legend</button>
-          <button class="dialog-btn defrag-btn">Hide Details</button>
+          <button class="dialog-btn defrag-btn" id="dflegend-${type}"><u>L</u>egend</button>
+          <button class="dialog-btn defrag-btn" id="dfdetails-${type}">Hide <u>D</u>etails</button>
         </div>
       </div>
     </div>
@@ -271,7 +271,7 @@ function buildDefragWindow(container, type) {
   // ── Run / pause with the window's visibility ──
   function start() {
     if (running || !ready || !cv.isConnected) return;
-    if (!layoutGrid()) return;
+    if (!layoutGrid() && !COLS) return; // the map may be hidden (Hide Details) once it is laid out
     running = true;
     // Progress bar runs on its own fixed 100ms timer, independent of animation speed
     progressTimer = setInterval(() => {
@@ -297,15 +297,16 @@ function buildDefragWindow(container, type) {
   }
 
   // Fires with a 0x0 size when the window is minimized, its real size when
-  // it is restored or resized, and when the window is removed.
+  // it is restored or resized, and when the window is removed. The block map
+  // alone is 0x0 while Hide Details is on; the run goes on then.
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
     if (!vp.isConnected) { teardown(); return; }
     if (!ready) return;
-    if (vp.clientWidth === 0) { stop(); return; }
+    if (container.clientWidth === 0) { stop(); return; }
     if (running) { layoutGrid(); updateScrollbar(); updateProgress(); }
     else start();
   }) : null;
-  if (ro) ro.observe(vp);
+  if (ro) { ro.observe(vp); ro.observe(container); }
 
   // ── Wire buttons ────────────────────────────
   const stopBtn = document.getElementById('dfstop-' + type);
@@ -318,6 +319,62 @@ function buildDefragWindow(container, type) {
   if (pauseBtn) pauseBtn.addEventListener('click', () => {
     paused = !paused;
     pauseBtn.innerHTML = paused ? '<u>R</u>esume' : '<u>P</u>ause';
+  });
+
+  // Legend: what the block colors mean (the same colors drawBlock() uses).
+  const legendBtn = document.getElementById('dflegend-' + type);
+  if (legendBtn) legendBtn.addEventListener('click', () => {
+    const dots = 'background-image:repeating-conic-gradient(#000 0% 25%, transparent 0% 50%);background-size:2px 2px;';
+    const rows = [
+      ['background:#0ce3f4;', 'Unfragmented data'],
+      ['background:linear-gradient(to left, #cc2020 50%, transparent 50%) top right / 100% 50% no-repeat, #f0f0f0;', 'Fragmented data'],
+      ['background-color:#1e83e2;' + dots, 'Data that has been defragmented'],
+      ['background-color:#ff2020;' + dots, 'Data that is being read or written'],
+      ['background:#0000a8;', 'Data that will not be moved'],
+      ['background:#eeeeee;', 'Free space'],
+    ];
+    showMessageBox({
+      id: 'defrag-legend',
+      title: 'Defrag Legend',
+      icon: null,
+      owner: type,
+      html: `<ul class="defrag-legend">${rows.map(r =>
+        `<li><span class="defrag-legend-block" style="${r[0]}"></span>${r[1]}</li>`).join('')}</ul>`,
+      buttons: [{ label: '<u>C</u>lose' }],
+    });
+  });
+
+  // Hide Details: only the progress bar and the buttons, as a small window
+  // (Win95's compact view); Show Details brings the block map back.
+  const detailsBtn = document.getElementById('dfdetails-' + type);
+  const body = container.querySelector('.defrag-body');
+  let details = { shown: true, h: 0, maximized: false };
+  if (detailsBtn) detailsBtn.addEventListener('click', () => {
+    const win = document.getElementById('win-' + type);
+    const st = openWindows[type];
+    if (!win || !st) return;
+    if (details.shown) {
+      details = { shown: false, h: win.style.height, maximized: st.maximized, auto: st.autoMax };
+      if (st.maximized) setMaximized(type, false, false);
+      if (isPhone()) {
+        const r = phoneFloatRect(win.offsetWidth, 0, getDesktopSize().w, getDesktopSize().h);
+        win.style.left = r.x + 'px';
+        win.style.width = r.w + 'px';
+      }
+      body.classList.add('defrag-no-details');
+      win.style.height = 'auto';
+      win.style.minHeight = '0';
+      if (isPhone()) win.style.top = Math.max(0, Math.round((getDesktopSize().h - win.offsetHeight) / 2)) + 'px';
+      detailsBtn.innerHTML = 'Show <u>D</u>etails';
+    } else {
+      body.classList.remove('defrag-no-details');
+      win.style.height = details.h;
+      win.style.minHeight = '';
+      if (details.maximized) setMaximized(type, true, details.auto);
+      details = { shown: true, h: 0, maximized: false };
+      detailsBtn.innerHTML = 'Hide <u>D</u>etails';
+    }
+    fitWindow(type);
   });
 
   // ── Init after layout renders ───────────────

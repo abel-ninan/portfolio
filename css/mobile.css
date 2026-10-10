@@ -114,6 +114,22 @@ body.is-phone .dialog-option input[type="radio"] {
   height: 20px;
 }
 
+/* Landscape phones with the browser bars showing (330-420px tall): a wider,
+   tighter Shut Down box so Yes / No / Help stay on screen. If it still does
+   not fit, the button row sticks to the bottom while the options scroll. */
+@media (orientation: landscape) and (max-height: 420px) {
+  body.is-phone #win-shutdown { width: min(460px, calc(100% - 16px)) !important; }
+  body.is-phone #win-shutdown .sd-main { padding-top: 8px !important; }
+  body.is-phone #win-shutdown p { margin-bottom: 4px !important; }
+  body.is-phone #win-shutdown label { min-height: 29px; }
+  body.is-phone #win-shutdown .sd-buttons {
+    position: sticky;
+    bottom: 0;
+    padding: 8px 14px 8px !important;
+    background: var(--c-material);
+  }
+}
+
 /* Log on screen (js/dialog.js) */
 body.is-phone .logon-field { height: 30px; }
 body.is-phone .logon-btn { min-height: 34px; font-size: 15px; }

@@ -1,14 +1,22 @@
 // ════════════════════════════════
 //  SHUTDOWN / DIALOG
 // ════════════════════════════════
+// Win95 Shut Down is system-modal: the whole screen, taskbar included, is
+// dimmed, and a click anywhere else just brings the dialog back to the front.
 function showShutdown() {
   let backdrop = document.getElementById('shutdown-backdrop');
   if (!backdrop) {
     backdrop = document.createElement('div');
     backdrop.id = 'shutdown-backdrop';
-    backdrop.style.cssText = 'position:fixed;inset:0 0 var(--taskbar-total, 40px) 0;background:rgba(0,0,0,0.25);z-index:999;pointer-events:none;';
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:10001;';
+    backdrop.addEventListener('click', e => {
+      e.stopPropagation();
+      if (openWindows.shutdown) focusWindow('shutdown');
+    });
+    backdrop.addEventListener('contextmenu', e => e.preventDefault());
     document.body.appendChild(backdrop);
   }
+  backdrop.style.display = '';
   openWindow('shutdown');
 }
 function hideDialog() {
@@ -63,7 +71,7 @@ function doShutdownAction() {
     document.body.innerHTML = `
       <style>
         #dos-screen { background:#000; width:100%; height:100vh; height:var(--app-height, 100vh); height:100dvh; padding:12px 16px; padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)); font-family:'Courier New',Courier,monospace; font-size:16px; color:#aaaaaa; overflow-x:hidden; overflow-y:auto; display:flex; flex-direction:column; cursor:text; box-sizing:border-box; }
-        #dos-output { white-space:pre-wrap; word-break:break-all; }
+        #dos-output { white-space:pre-wrap; word-break:normal; overflow-wrap:anywhere; }
         #dos-input-line { display:flex; align-items:center; }
         #dos-prompt { white-space:nowrap; }
         #dos-input { background:transparent; border:none; outline:none; color:#aaaaaa; font-family:'Courier New',Courier,monospace; font-size:16px; flex:1; caret-color:#aaaaaa; padding:0; margin:0; }
@@ -71,7 +79,9 @@ function doShutdownAction() {
       </style>
       <div id="dos-screen">
         <div id="dos-output">Microsoft(R) MS-DOS(R) Version 7.0
-           (C)Copyright Microsoft Corp 1981-1995.
+   (C)Copyright Microsoft Corp 1981-1995.
+
+Type EXIT and press ENTER to return to Windows.
 
 </div>
         <div id="dos-input-line">
@@ -105,8 +115,12 @@ function doShutdownAction() {
         'win':  '__EXIT__',
       };
 
-      const key = cmd.toLowerCase().split(' ')[0];
-      const response = responses.hasOwnProperty(key) ? responses[key] : (cmd ? 'Bad command or file name\n' : '');
+      const key = cmd.toLowerCase().split(/\s+/)[0];
+      const args = cmd.slice(key.length).trim();
+      let response = responses.hasOwnProperty(key) ? responses[key] : (cmd ? 'Bad command or file name\n' : '');
+      // ECHO prints its text; COMMAND starts a new command interpreter (its banner).
+      if (key === 'echo') response = (args ? args.replace(/^[.:]/, '') : 'ECHO is on.') + '\n';
+      if (key === 'command') response = '\nMicrosoft(R) Windows 95\n   (C)Copyright Microsoft Corp 1981-1995.\n';
 
       if (response === '__CLEAR__') {
         output.textContent = '';
@@ -122,10 +136,25 @@ function doShutdownAction() {
     });
 
   } else {
+    // "It's now safe to turn off your computer." A click, tap or key starts
+    // Windows again, so a visitor (in an in-app browser without a reload
+    // button, say) is never stuck here; a hint fades in after a moment.
+    const verb = isPhone() ? 'Tap' : 'Click';
     document.body.innerHTML = `
-      <div style="background:#000;width:100%;height:100vh;height:var(--app-height, 100vh);height:100dvh;display:flex;align-items:center;justify-content:center;">
-        <img src="img/shutdown-screen.jpg" style="max-width:100%;max-height:100%;display:block;">
+      <div id="shutdown-screen" role="button" tabindex="0" aria-label="It's now safe to turn off your computer. ${verb} to restart Windows."
+           style="position:relative;background:#000;width:100%;height:100vh;height:var(--app-height, 100vh);height:100dvh;display:flex;align-items:center;justify-content:center;cursor:pointer;outline:none;">
+        <img src="img/shutdown-screen.jpg" alt="" style="max-width:100%;max-height:100%;display:block;">
+        <p id="shutdown-hint" style="position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom, 0px));margin:0;text-align:center;font-family:'w95fa','MS Sans Serif',sans-serif;font-size:16px;color:#c0c0c0;opacity:0;transition:opacity 1s ease;pointer-events:none;">${verb} to restart Windows</p>
       </div>`;
+    const screen = document.getElementById('shutdown-screen');
+    const shownAt = Date.now();
+    const restart = () => {
+      if (Date.now() - shownAt < 500) return; // the click or key that chose Yes
+      location.reload();
+    };
+    screen.addEventListener('click', restart);
+    document.addEventListener('keydown', restart);
+    setTimeout(() => { const hint = document.getElementById('shutdown-hint'); if (hint) hint.style.opacity = '1'; }, 2500);
   }
 }
 
@@ -214,42 +243,103 @@ function doRun() {
 }
 
 function runError(name) {
-  const F = "'w95fa','MS Sans Serif',Tahoma,sans-serif";
-  const old = document.getElementById('run-error'); if (old) old.remove();
-  const safe = escapeHTML(name);
+  showMessageBox({
+    id: 'run-error',
+    title: 'Run',
+    icon: 'error',
+    owner: 'run',
+    text: `Cannot find the file '${name}' (or one of its components). Make sure the path and filename are correct and that all required libraries are available.`,
+    onClose: () => { const ri = document.getElementById('run-input'); if (ri) ri.focus(); },
+  });
+}
+
+// ════════════════════════════════
+//  MESSAGE BOX
+// ════════════════════════════════
+// A Win95 message box in front of everything (Run errors, Defrag's legend,
+// the empty drives in My Computer). The window it belongs to (opts.owner) looks
+// inactive while it is up and gets the focus back after.
+//   opts: { id, title, text | html, icon: 'info' | 'error' | 'warn' | null,
+//           buttons: [{ label, run }], owner, onClose }
+// Enter picks the focused (first) button; Escape and the title-bar X the last.
+const MSGBOX_ICONS = {
+  info: `<svg class="msgbox-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16,2C8,2,2,7.5,2,14c0,4,2.3,7.5,6,9.7L6,30l8-5c0.7,0.1,1.3,0.1,2,0.1c8,0,14-5.5,14-12S24,2,16,2Z" fill="#fff" stroke="#000" stroke-width="1"/>
+    <circle cx="16" cy="8.5" r="2.2" fill="#0000ff"/><rect x="14" y="12" width="4" height="10" fill="#0000ff"/></svg>`,
+  error: `<svg class="msgbox-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+    <circle cx="16" cy="16" r="14" fill="#ff0000" stroke="#800000" stroke-width="1"/>
+    <path d="M10,10 L22,22 M22,10 L10,22" stroke="#fff" stroke-width="3.5"/></svg>`,
+  warn: `<svg class="msgbox-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16,2L30.5,29H1.5Z" fill="#ffff00" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="14.25" y="10" width="3.5" height="11" fill="#000"/><rect x="14.25" y="23" width="3.5" height="3.5" fill="#000"/></svg>`,
+};
+
+function showMessageBox(opts) {
+  const o = opts || {};
+  const id = o.id || 'msgbox';
+  const old = document.getElementById(id);
+  if (old) old.remove();
+  const buttons = o.buttons && o.buttons.length ? o.buttons : [{ label: 'OK' }];
+  const icon = o.icon === null ? '' : (MSGBOX_ICONS[o.icon] || MSGBOX_ICONS.info);
 
   const back = document.createElement('div');
-  back.id = 'run-error';
-  back.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;';
-  const frame = 'background:#c0c0c0;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;';
+  back.id = id;
+  back.className = 'msgbox-backdrop';
+  if (o.owner) back.dataset.owner = o.owner; // closed with that window (closeWindow)
   back.innerHTML = `
-    <div style="${frame}width:400px;max-width:calc(100vw - 16px);padding:3px;font-family:${F};">
-      <div style="background:#7f787f;color:#fff;font-size:13px;font-weight:bold;padding:3px 4px 3px 6px;display:flex;align-items:center;height:20px;">
-        <span style="flex:1;">Run</span>
-        <button id="run-error-x" aria-label="Close" style="width:18px;height:16px;background:#c0c0c0;border:none;box-shadow:inset -1px -1px 0 #0a0a0a,inset 1px 1px 0 #fefefe,inset -2px -2px 0 #848584,inset 2px 2px 0 #dfdfdf;cursor:pointer;font-family:${F};font-size:11px;line-height:1;color:#000;">&#10005;</button>
+    <div class="window active msgbox" role="alertdialog" aria-modal="true" aria-labelledby="${id}-title" aria-describedby="${id}-text">
+      <div class="window-titlebar">
+        <span class="window-title" id="${id}-title"></span>
+        <div class="window-controls">
+          <button class="win-btn win-btn-close" id="${id}-x" title="Close" aria-label="Close">
+            <img src="img/close-icon.png" alt="" style="width:14px;height:14px;image-rendering:pixelated;display:block;">
+          </button>
+        </div>
       </div>
-      <div style="display:flex;gap:14px;padding:18px 16px 14px;align-items:flex-start;">
-        <svg width="32" height="32" viewBox="0 0 32 32" style="flex-shrink:0;">
-          <circle cx="16" cy="16" r="14" fill="#d40000" stroke="#7a0000" stroke-width="1"/>
-          <path d="M10,10 L22,22 M22,10 L10,22" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
-        </svg>
-        <p style="font-size:13px;line-height:1.5;flex:1;margin:2px 0 0;">Cannot find the file '${safe}' (or one of its components). Make sure the path and filename are correct and that all required libraries are available.</p>
-      </div>
-      <div style="display:flex;justify-content:center;padding:0 0 16px;">
-        <button class="dialog-btn" id="run-error-ok" style="min-width:75px;">OK</button>
-      </div>
+      <div class="msgbox-body">${icon}<div class="msgbox-text" id="${id}-text"></div></div>
+      <div class="msgbox-footer">${buttons.map((b, i) =>
+        `<button class="dialog-btn msgbox-btn" data-i="${i}"${i === 0 ? ` id="${id}-ok"` : ''}>${b.label}</button>`).join('')}</div>
     </div>`;
+  back.querySelector('.window-title').textContent = o.title || 'Windows';
+  const textEl = back.querySelector('.msgbox-text');
+  if (o.html) textEl.innerHTML = o.html; else textEl.textContent = o.text || '';
   document.body.appendChild(back);
+  document.querySelectorAll('#desktop .window.active').forEach(w => w.classList.remove('active'));
 
-  const ok = document.getElementById('run-error-ok');
-  const dismiss = () => { back.remove(); document.removeEventListener('keydown', onKey); const ri = document.getElementById('run-input'); if (ri) ri.focus(); };
-  const onKey = (e) => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); dismiss(); } };
-  ok.addEventListener('click', dismiss);
-  document.getElementById('run-error-x').addEventListener('click', dismiss);
-  // Next tick: the Enter that ran the command is still bubbling and would close it at once.
+  let done = false;
+  const close = i => {
+    if (done) return;
+    done = true;
+    back.remove();
+    document.removeEventListener('keydown', onKey, true);
+    if (o.owner && openWindows[o.owner]) focusWindow(o.owner);
+    const b = buttons[i];
+    if (b && typeof b.run === 'function') b.run();
+    if (typeof o.onClose === 'function') o.onClose(i);
+  };
+  const onKey = e => {
+    if (e.key !== 'Escape' && e.key !== 'Enter') return;
+    e.preventDefault();
+    e.stopPropagation();
+    const btn = e.target instanceof Element && e.target.closest('.msgbox-btn');
+    close(e.key === 'Escape' ? buttons.length - 1 : (btn && back.contains(btn) ? +btn.dataset.i : 0));
+  };
+  back.querySelector('.msgbox-footer').addEventListener('click', e => {
+    const btn = e.target.closest('.msgbox-btn');
+    if (btn) close(+btn.dataset.i);
+  });
+  back.querySelector('.win-btn-close').addEventListener('click', () => close(buttons.length - 1));
+  back._cancel = () => { // its window closed: go away without running anything
+    done = true;
+    back.remove();
+    document.removeEventListener('keydown', onKey, true);
+  };
+  back.addEventListener('contextmenu', e => e.preventDefault());
+  // Next tick: the Enter that opened the box is still being handled.
   setTimeout(() => {
     if (!back.isConnected) return;
-    document.addEventListener('keydown', onKey);
-    ok.focus();
+    document.addEventListener('keydown', onKey, true);
+    back.querySelector('.msgbox-btn').focus({ preventScroll: true });
   }, 0);
+  return back;
 }

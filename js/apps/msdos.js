@@ -50,7 +50,7 @@ const DOS_TB_BTN = {
 
 function buildMsdosWindow(container, type) {
   dosBuildAbelFs();
-  dosScroll = 'Microsoft(R) Windows 95\n   (C)Copyright Microsoft Corp 1981-1996.\n\n' +
+  dosScroll = 'Microsoft(R) Windows 95\n   (C)Copyright Microsoft Corp 1981-1995.\n\n' +
               'Type HELP for a list of commands.\n\n';
   dosBuffer = '';
   dosCaret = 0;
@@ -62,7 +62,7 @@ function buildMsdosWindow(container, type) {
     <div class="dos-toolbar">
       <div class="dos-combo">
         <span class="dos-combo-txt">Auto</span>
-        <button class="dos-combo-btn" tabindex="-1"><svg width="7" height="4" viewBox="0 0 7 4"><polygon points="0,0 7,0 3.5,4" fill="#000"/></svg></button>
+        <button class="dos-combo-btn" tabindex="-1" aria-label="Font size list"><svg width="7" height="4" viewBox="0 0 7 4"><polygon points="0,0 7,0 3.5,4" fill="#000"/></svg></button>
       </div>
       <div class="dos-tb-sep"></div>
       <button class="dos-tb-btn" title="Mark" tabindex="-1">${DOS_TB_BTN.mark}</button>

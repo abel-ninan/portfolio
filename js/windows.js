@@ -77,15 +77,18 @@ function openWindow(type) {
   win.className = 'window active' + (def.dialog ? ' is-dialog' : '');
   win.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;`;
 
+  // Title-bar buttons as in Win95: dialogs (closeOnly) have just Close;
+  // fixed-size windows (noResize) show Maximize greyed out.
   win.innerHTML = `
     <div class="window-titlebar" id="titlebar-${type}">
       ${def.noIcon ? '' : `<img class="window-title-icon" src="${escapeHTML(ICONS[def.icon] || '')}" alt="">`}
       <span class="window-title">${escapeHTML(def.title)}</span>
       <div class="window-controls">
+        ${def.closeOnly ? '' : `
         <button class="win-btn win-btn-minimize" title="Minimize" aria-label="Minimize" data-win-btn="minimize"></button>
-        <button class="win-btn" title="Maximize" aria-label="Maximize" data-win-btn="maximize">
+        <button class="win-btn" title="Maximize" aria-label="Maximize" data-win-btn="maximize"${def.noResize ? ' disabled' : ''}>
           <img src="img/maximize-icon.png" alt="" style="width:14px;height:14px;image-rendering:pixelated;display:block;">
-        </button>
+        </button>`}
         <button class="win-btn win-btn-close" title="Close" aria-label="Close" data-win-btn="close">
           <img src="img/close-icon.png" alt="" style="width:14px;height:14px;image-rendering:pixelated;display:block;">
         </button>
@@ -166,11 +169,18 @@ function focusTopWindow(exclude) {
   }
 }
 
+// The Shut Down dialog's dimmed backdrop (js/dialog.js) goes with it.
+function setShutdownBackdrop(shown) {
+  const backdrop = document.getElementById('shutdown-backdrop');
+  if (backdrop) backdrop.style.display = shown ? '' : 'none';
+}
+
 function minimizeWindow(type) {
   const win = document.getElementById('win-' + type);
   if (!win || !openWindows[type]) return;
   win.style.display = 'none';
   openWindows[type].minimized = true;
+  if (type === 'shutdown') setShutdownBackdrop(false);
   windowCompanions(type).forEach(el => { el.style.display = 'none'; });
   const tb = document.getElementById('tbtn-' + type);
   if (tb) tb.classList.remove('active');
@@ -183,6 +193,7 @@ function restoreWindow(type) {
   if (!win || !openWindows[type]) return;
   win.style.display = (WINDOW_DEFS[type] && WINDOW_DEFS[type].bare) ? 'block' : 'flex';
   openWindows[type].minimized = false;
+  if (type === 'shutdown') setShutdownBackdrop(true);
   if (type === 'winamp') {
     const eq = document.getElementById('win-winampeq');
     const pl = document.getElementById('win-winamppl');
@@ -215,13 +226,25 @@ function setMaximized(type, on, auto) {
   }
   state.maximized = on;
   state.autoMax = !!(on && auto);
+
+  // The middle button shows Restore while maximized, as in Win95.
+  const btn = win.querySelector('[data-win-btn="maximize"]');
+  if (btn) {
+    const label = on ? 'Restore' : 'Maximize';
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
+    const img = btn.querySelector('img');
+    if (img) img.src = on ? 'img/restore-icon.png' : 'img/maximize-icon.png';
+  }
 }
 
 function toggleMaximize(type) {
   const win = document.getElementById('win-' + type);
   const state = openWindows[type];
   if (!win || !state) return;
-  if (WINDOW_DEFS[type] && WINDOW_DEFS[type].bare) return;
+  const def = WINDOW_DEFS[type];
+  // Bare windows lay themselves out; dialogs and fixed-size windows have no Maximize.
+  if (def && (def.bare || def.noResize || def.closeOnly)) return;
 
   if (state.maximized && isPhone()) {
     // Phones: "restore" is a floating window fitted inside the screen.
@@ -242,6 +265,9 @@ function closeWindow(type) {
   delete openWindows[type];
   activeWindow = null;
   if (type === 'winamp') winampCleanup();
+  document.querySelectorAll('.msgbox-backdrop').forEach(b => {
+    if (b.dataset.owner === type && b._cancel) b._cancel();
+  });
   if (type === 'shutdown') {
     const backdrop = document.getElementById('shutdown-backdrop');
     if (backdrop) backdrop.remove();

@@ -15,7 +15,7 @@ const WINAMP = {
   open: false,
   ctx: null, audio: null, analyser: null, freqData: null,
   filters: null, preamp: null, panner: null, volGain: null,
-  current: 3, playing: false, started: false,
+  current: 0, playing: false, started: false,
   remaining: false,            // time display mode
   shuffle: false, repeat: false, eqOn: true,
   eqVisible: true, plVisible: true,
@@ -30,16 +30,12 @@ const WINAMP = {
   seeking: false,
   deskH: null,                 // unscaled panel heights, for re-stacking on desktop
   ro: null, shown: false,
-  // Listed names/durations match the target skin (titles & artist names aren't copyrightable);
-  // actual playable audio is the bundled CC0 chiptunes, cycled across the entries.
+  // The bundled CC0 chiptunes, listed as what they are, with their real
+  // lengths (128 kbps, 44.1 kHz).
   tracks: [
-    { num: 1, artist: 'Mori Calliope', title: 'Go-Getters',    file: 'audio/chiptune1.mp3', dur: 195, kbps: 128, khz: 48 },
-    { num: 2, artist: 'CircusP',       title: 'Goodbye',        file: 'audio/chiptune2.mp3', dur: 204, kbps: 128, khz: 48 },
-    { num: 3, artist: 'ArnaLee',       title: 'Siren',          file: 'audio/chiptune3.mp3', dur: 242, kbps: 128, khz: 48 },
-    { num: 4, artist: 'Crusher-P',     title: 'Echo',           file: 'audio/chiptune1.mp3', dur: 230, kbps: 128, khz: 48 },
-    { num: 5, artist: 'M83',           title: 'Midnight City',  file: 'audio/chiptune2.mp3', dur: 243, kbps: 128, khz: 48 },
-    { num: 6, artist: 'Sunnexo',       title: 'Please Wait',    file: 'audio/chiptune3.mp3', dur: 255, kbps: 128, khz: 48 },
-    { num: 7, artist: 'Omaru Polka',   title: 'Persona',        file: 'audio/chiptune1.mp3', dur: 296, kbps: 128, khz: 48 },
+    { num: 1, artist: 'Chiptune', title: 'Track 1', file: 'audio/chiptune1.mp3', dur: 14, kbps: 128, khz: 44 },
+    { num: 2, artist: 'Chiptune', title: 'Track 2', file: 'audio/chiptune2.mp3', dur: 31, kbps: 128, khz: 44 },
+    { num: 3, artist: 'Chiptune', title: 'Track 3', file: 'audio/chiptune3.mp3', dur: 19, kbps: 128, khz: 44 },
   ],
 };
 
@@ -310,7 +306,10 @@ function buildWinampWindow(win, type) {
   WINAMP.shown = true;
   WINAMP.ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
     const shown = win.offsetWidth > 0;
-    if (shown && !WINAMP.shown) requestAnimationFrame(() => winampLayout());
+    if (shown && !WINAMP.shown) {
+      requestAnimationFrame(() => winampLayout());
+      if (!WINAMP.raf) WINAMP.raf = requestAnimationFrame(winampTick); // stopped while minimized
+    }
     WINAMP.shown = shown;
   }) : null;
   if (WINAMP.ro) WINAMP.ro.observe(win);
@@ -750,6 +749,11 @@ function winampCleanup() {
   if (WINAMP.raf) { cancelAnimationFrame(WINAMP.raf); WINAMP.raf = null; }
   if (WINAMP.ro) { WINAMP.ro.disconnect(); WINAMP.ro = null; }
   if (WINAMP.audio) { WINAMP.audio.pause(); }
+  // Release the audio hardware; winampPlay() resumes the graph next time.
+  if (WINAMP.ctx && WINAMP.ctx.state === 'running' && WINAMP.ctx.suspend) {
+    const r = WINAMP.ctx.suspend();
+    if (r && r.catch) r.catch(() => {});
+  }
   WINAMP.playing = false; WINAMP.started = false;
   WINAMP.phone = false; WINAMP.phonePos = null; WINAMP.slide = null; WINAMP.seeking = false;
   ['win-winampeq', 'win-winamppl'].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
@@ -759,7 +763,10 @@ function winampCleanup() {
 //  RENDER LOOP
 // ════════════════════════════════
 function winampTick() {
-  if (!WINAMP.open) return;
+  // Nothing to draw while minimized (the music plays on); the ResizeObserver
+  // in buildWinampWindow starts the loop again when it is restored.
+  const st = openWindows.winamp;
+  if (!WINAMP.open || (st && st.minimized)) { WINAMP.raf = null; return; }
   winampDrawSpectrum();
   winampUpdateTime();
   winampScrollMarquee();

@@ -2,13 +2,13 @@
 
 My portfolio, built as a working Windows 95 desktop in the browser. Open My Projects, the Resume, the Bio or Contact Me straight from the desktop. Every icon opens with a single click or tap, and every window fits on a phone screen.
 
-**Live site:** [abelninan.com](https://abelninan.com/)
+**Live site:** [abel-ninan.github.io/portfolio](https://abel-ninan.github.io/portfolio/)
 
 ---
 
 ## What's on the desktop
 
-- **My Projects**: one window per project, with metrics, how it works, the tech stack, diagrams and links. The projects are HairMaxxx, AI Lead Generation Workflow, @historyslides, MarketPulse, Creator Analytics Pipeline and QueryPilot.
+- **My Projects**: one window per project, with metrics, how it works, the tech stack, diagrams and links. The projects are HairMaxxx, AI Lead Generation Workflow, @historyslides, Lecture & Meeting AI, MarketPulse, Creator Analytics Pipeline and QueryPilot.
 - **Resume**: a WordPad window with my experience, education, skills and certifications. It has a **Download PDF** button and a **Print** button that prints only the resume.
 - **Abel Ninan Bio**: a Notepad window.
 - **Contact Me**: an Outlook Express "New Message" window. **Send** opens your own email app, and there are LinkedIn, GitHub and Copy email buttons.
@@ -63,9 +63,9 @@ To edit the text, change `js/content.js`. Every window reads its copy from there
 - **[React95](https://github.com/react95-io/React95)**: the border system, color palette and resize handle follow React95's original theme.
 - **[95CSS](https://github.com/yoshimannaert/95CSS)**: a reference for the scrollbar styling and dialog layouts.
 - **[w95fa font](https://fontsarena.com/w95fa-by-alina-sava/)** by Alina Sava: the Windows 95 interface font.
-- **[Fixedsys Excelsior](https://fixedsysexcelsior.com)** by Darien Valentine: the monospace font in Notepad and MS-DOS.
-- **[Win95/WinXP icons pack](https://github.com/awesome-windows95-icons)**: the shutdown and system tray icons.
+- **[Fixedsys Excelsior](https://web.archive.org/web/20190207073141/http://www.fixedsysexcelsior.com/)** by Darien Valentine: the monospace font in Notepad and MS-DOS.
+- **Win95/WinXP icons pack**: the shutdown and system tray icons.
 - **[Windows 95 app icons by Wallpapers Clan](https://wallpapers-clan.com)**: retro app icons, including the LinkedIn icon.
-- **[Windows 95 UI Kit (Figma)](https://www.figma.com/community/file/1214528480728795592)** and **[Windows 95 Icons (Figma)](https://www.figma.com/community/file/1254078490904184073)**: references for the title bars, buttons, controls and icons.
+- **[Windows 95 Design System (Figma)](https://www.figma.com/community/file/1214528480728795592)** and **[Windows 95 UI Kit (Figma)](https://www.figma.com/community/file/1254078490904184073)**: references for the title bars, buttons, controls and icons.
 
 Windows 95, Internet Explorer, WordPad, Outlook Express and the other product names are trademarks of their owners. This site is a fan tribute and is not affiliated with them.

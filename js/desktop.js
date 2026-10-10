@@ -7,7 +7,9 @@ function toggleStartMenu(e) {
   document.getElementById('start-btn').classList.toggle('pressed');
 }
 function closeStartMenu() {
-  document.getElementById('start-menu').classList.remove('visible');
+  const menu = document.getElementById('start-menu');
+  if (!menu) return; // the desktop was replaced (shut down, MS-DOS mode, log on)
+  menu.classList.remove('visible');
   document.getElementById('start-btn').classList.remove('pressed');
   mobileMenuReset();
 }
@@ -86,14 +88,22 @@ function showContextMenu(e) {
   if (e.target instanceof Element && e.target.closest('.window, .winamp, [data-window-group]')) return;
   e.preventDefault();
   const menu = document.getElementById('context-menu');
-  const x = Math.max(0, Math.min(e.clientX, window.innerWidth  - 170));
-  const y = Math.max(0, Math.min(e.clientY, window.innerHeight - 120));
-  menu.style.left = x + 'px';
-  menu.style.top  = y + 'px';
   menu.classList.add('visible');
+  // As in Win95: it opens to the left of / above the pointer when there is no
+  // room right of / below it, and never covers the taskbar.
+  const desk = document.getElementById('desktop').getBoundingClientRect();
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  let x = e.clientX, y = e.clientY;
+  if (x + w > desk.right) x -= w;
+  if (y + h > desk.bottom) y -= h;
+  x = Math.max(desk.left, Math.min(x, desk.right - w));
+  y = Math.max(desk.top, Math.min(y, desk.bottom - h));
+  menu.style.left = Math.round(x) + 'px';
+  menu.style.top  = Math.round(y) + 'px';
 }
 function hideContextMenu() {
-  document.getElementById('context-menu').classList.remove('visible');
+  const menu = document.getElementById('context-menu');
+  if (menu) menu.classList.remove('visible');
 }
 
 // ════════════════════════════════
@@ -251,6 +261,25 @@ document.addEventListener('dblclick', e => {
   }
 }, true);
 
+// Escape closes the Start menu or the desktop menu; otherwise it cancels the
+// active Win95 dialog (Run, Shut Down, Welcome), as in Win95. Message boxes
+// and Paint's own boxes handle their Escape before it gets here.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || e.defaultPrevented) return;
+  const menu = document.getElementById('start-menu');
+  if (menu && menu.classList.contains('visible')) {
+    closeStartMenu();
+    const btn = document.getElementById('start-btn');
+    if (btn) btn.focus({ preventScroll: true });
+    return;
+  }
+  const ctx = document.getElementById('context-menu');
+  if (ctx && ctx.classList.contains('visible')) { hideContextMenu(); return; }
+  if (document.querySelector('.msgbox-backdrop')) return;
+  const def = activeWindow && WINDOW_DEFS[activeWindow];
+  if (def && def.closeOnly) closeWindow(activeWindow);
+});
+
 // Keyboard: Enter / Space on a focused desktop icon (or other tap target).
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -303,6 +332,21 @@ function recycleDrop(e) {
   document.getElementById('icon-recycle').classList.remove('selected');
 
   // Refresh window if open
+  const body = document.getElementById('wbody-recycle');
+  if (body) buildRecycleWindow(body);
+}
+
+// Put a recycled icon back on the desktop (a tap on its Recycle Bin row).
+function restoreRecycledIcon(id) {
+  const i = recycleBinItems.findIndex(it => it.id === id);
+  if (i === -1) return;
+  recycleBinItems.splice(i, 1);
+  const iconEl = document.getElementById(id);
+  if (iconEl) iconEl.classList.remove('recycled');
+  if (!recycleBinItems.length) {
+    const recycleImg = document.querySelector('#icon-recycle img');
+    if (recycleImg) recycleImg.src = 'img/recycle-bin.png';
+  }
   const body = document.getElementById('wbody-recycle');
   if (body) buildRecycleWindow(body);
 }

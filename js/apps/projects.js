@@ -24,13 +24,19 @@ function labelledHTML(str) {
   return escapeHTML(s);
 }
 
+// width / height (the image's own size, from js/content.js) reserve its space
+// before a lazy image loads, so the page does not jump while it is scrolled.
 function projectFigureHTML(img, hero) {
   if (!img || !img.src) return '';
   const svg = /\.svg(\?|$)/i.test(img.src);
+  const w = +img.width, h = +img.height;
+  const size = w > 0 && h > 0 ? ` width="${w}" height="${h}"` : '';
+  // Same shape classes buildProjectWindow() sets on load, known up front here.
+  const shape = svg || !size ? '' : (w >= h * 2 ? ' pf-wide' : (h > w * 1.2 ? ' pf-portrait' : ''));
   return `
-        <figure class="pf-figure${hero ? ' pf-hero' : ''}${svg ? ' pf-svg' : ''}">
+        <figure class="pf-figure${hero ? ' pf-hero' : ''}${svg ? ' pf-svg' : ''}${shape}">
           <div class="pf-frame">
-            <img src="${escapeHTML(img.src)}" alt="${escapeHTML(img.alt || '')}" loading="lazy" decoding="async">
+            <img src="${escapeHTML(img.src)}" alt="${escapeHTML(img.alt || '')}"${size} loading="lazy" decoding="async">
           </div>
           ${img.caption ? `<figcaption>${escapeHTML(img.caption)}</figcaption>` : ''}
         </figure>`;
@@ -90,7 +96,7 @@ function buildProjectWindow(container, type) {
             <p class="pf-subtitle">${escapeHTML(p.subtitle)}</p>
             <p class="pf-meta">
               ${p.badge ? `<span class="pf-badge">${escapeHTML(p.badge)}</span>` : ''}
-              <span class="pf-meta-text">${escapeHTML([p.period, p.role].filter(Boolean).join(' | '))}</span>
+              <span class="pf-meta-text">${escapeHTML([p.period, p.role].filter(Boolean).join(' \u00b7 '))}</span>
             </p>
           </div>
         </header>

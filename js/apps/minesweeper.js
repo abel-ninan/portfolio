@@ -8,10 +8,11 @@
 // smiley turns taps into flags, and tapping a number chords.
 //
 // Size: cells are 22px as in Win95 on desktop. On phones they grow up to 30px
-// when there is room and shrink to fit the screen, but not below 20px if that
-// can be helped; Expert is played as 30 rows x 16 columns on a portrait phone
-// (a game in progress is turned with the phone). When the board still does not
-// fit, it scrolls inside the window under the counters.
+// when there is room and shrink to fit the screen, down to 16px; Expert is
+// played as 30 rows x 16 columns on a portrait phone (a game in progress is
+// turned with the phone). When the board still does not fit, it scrolls
+// inside the window under the counters. On short landscape phones the
+// counters stand beside the board instead.
 const MINE_LEVELS = {
   beginner:     { rows: 9,  cols: 9,  mines: 10, label: 'Beginner' },
   intermediate: { rows: 16, cols: 16, mines: 40, label: 'Intermediate' },
@@ -38,6 +39,35 @@ let mineLayoutRaf = 0;
 
 const MINE_NUM_COLORS = ['','#0000ff','#008000','#ff0000','#000080','#800000','#008080','#000000','#808080'];
 
+// The smiley, drawn as 16x16 pixel art ('#' black, 'y' yellow) like Win95's.
+const MINE_FACE_TOP = ['.....######.....', '...##yyyyyy##...', '..#yyyyyyyyyy#..', '.#yyyyyyyyyyyy#.'];
+const MINE_FACE_BOTTOM = ['.#yyyyyyyyyyyy#.', '..#yyyyyyyyyy#..', '...##yyyyyy##...', '.....######.....'];
+const MINE_FACE_EYES = ['.#yyyyyyyyyyyy#.', '#yyyy##yy##yyyy#', '#yyyy##yy##yyyy#', '#yyyyyyyyyyyyyy#'];
+const MINE_FACE_SMILE = ['#yyyyyyyyyyyyyy#', '#yyy#yyyyyy#yyy#', '#yyyy#yyyy#yyyy#', '.#yyyy####yyyy#.'];
+const MINE_FACES = {
+  smile: MINE_FACE_EYES.concat(MINE_FACE_SMILE),
+  oh:    MINE_FACE_EYES.concat(['#yyyyyy##yyyyyy#', '#yyyyy#yy#yyyyy#', '#yyyyy#yy#yyyyy#', '.#yyyyy##yyyyy#.']),
+  cool:  ['#y############y#', '#yy####yy####yy#', '#yyy##yyyy##yyy#', '#yyyyyyyyyyyyyy#'].concat(MINE_FACE_SMILE),
+  dead:  ['.#yyyyyyyyyyyy#.', '#yyy#y#yy#y#yyy#', '#yyyy#yyyy#yyyy#', '#yyy#y#yy#y#yyy#',
+          '#yyyyyyyyyyyyyy#', '#yyyyyyyyyyyyyy#', '#yyyyy####yyyyy#', '.#yyy#yyyy#yyy#.'],
+};
+
+function mineFaceSVG(name) {
+  const rows = MINE_FACE_TOP.concat(MINE_FACES[name] || MINE_FACES.smile, MINE_FACE_BOTTOM);
+  const paths = { '#': '', y: '' };
+  rows.forEach((row, y) => {
+    for (let x = 0; x < row.length;) {
+      const c = row[x];
+      let n = 1;
+      while (row[x + n] === c) n++;
+      if (paths[c] !== undefined) paths[c] += `M${x},${y}h${n}v1h-${n}z`;
+      x += n;
+    }
+  });
+  return `<svg class="mine-face" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">` +
+    `<path d="${paths.y}" fill="#ffff00"/><path d="${paths['#']}" fill="#000"/></svg>`;
+}
+
 function buildMinesweeperWindow(container) {
   container.classList.add('mine-body');
   container.innerHTML = `
@@ -58,7 +88,7 @@ function buildMinesweeperWindow(container) {
       <div class="mine-header">
         <div class="mine-lcd" id="mine-count-lcd">010</div>
         <div class="mine-header-mid">
-          <button class="mine-face-btn" id="mine-face-btn" title="New game" aria-label="New game">🙂</button>
+          <button class="mine-face-btn" id="mine-face-btn" title="New game" aria-label="New game" data-face="smile">${mineFaceSVG('smile')}</button>
           <button class="mine-flag-btn" id="mine-flag-btn" title="Flag mode: taps place flags"
             aria-label="Flag mode" aria-pressed="false">🚩</button>
         </div>
@@ -209,7 +239,7 @@ function mineNewGame() {
 
   mineLCDSet('mine-count-lcd', mineTotalMines);
   mineLCDSet('mine-timer-lcd', 0);
-  mineSetFace('🙂');
+  mineSetFace('smile');
   // Size the window first: a grid briefly wider than its window leaves
   // WebKit with a stale height.
   mineLayout();
@@ -318,7 +348,7 @@ function mineChord(r, c) {
 function mineLose() {
   mineGameOver = true;
   clearInterval(mineTimerInterval); mineTimerInterval = null;
-  mineSetFace('😵');
+  mineSetFace('dead');
   mineRevealAllMines();
 }
 
@@ -326,7 +356,7 @@ function mineCheckWin() {
   if (mineRevealed !== mineRows * mineCols - mineTotalMines) return;
   mineGameWon = true;
   clearInterval(mineTimerInterval); mineTimerInterval = null;
-  mineSetFace('😎');
+  mineSetFace('cool');
   // Auto-flag remaining
   for (let r = 0; r < mineRows; r++) for (let c = 0; c < mineCols; c++)
     if (mineBoard[r][c].mine) { mineBoard[r][c].flagged = true; mineBoard[r][c].questioned = false; }
@@ -408,7 +438,7 @@ function mineOnPointerDown(e) {
   clearTimeout(minePress && minePress.timer);
   const press = minePress = { id: e.pointerId, type: e.pointerType, x: e.clientX, y: e.clientY, r, c, el, long: false, timer: 0 };
   if (!cell.revealed && !cell.flagged && !mineFlagMode) {
-    mineSetFace('😮');
+    mineSetFace('oh');
     mineSetPressed(el);
   }
   // Touch / pen: hold to flag.
@@ -417,7 +447,7 @@ function mineOnPointerDown(e) {
       if (minePress !== press) return;
       press.long = true;
       mineSetPressed(null);
-      mineSetFace('🙂');
+      mineSetFace('smile');
       mineToggleFlag(r, c, false);
       if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) { /* not allowed */ } }
     }, MINE_LONG_PRESS_MS);
@@ -448,7 +478,7 @@ function mineOnPointerUp(e) {
   mineSetPressed(null);
   if (p.long || mineGameOver || mineGameWon) return; // a long-press already flagged
   if (p.type === 'mouse' && e.button !== 0) return;
-  mineSetFace('🙂');
+  mineSetFace('smile');
   const cell = mineBoard[p.r] && mineBoard[p.r][p.c];
   if (!cell) return;
   if (cell.revealed) mineChord(p.r, p.c);
@@ -462,7 +492,7 @@ function mineCancelPress() {
   minePress = null;
   clearTimeout(p.timer);
   mineSetPressed(null);
-  if (!mineGameOver && !mineGameWon) mineSetFace('🙂');
+  if (!mineGameOver && !mineGameWon) mineSetFace('smile');
 }
 
 function mineOnContextMenu(e) {
@@ -490,8 +520,14 @@ function mineSpace(win) {
   const st = openWindows.minesweeper;
   const margin = isPhone() && !(st && st.maximized) ? 16 : 0;
   const pad = isPhone() ? 4 : 6;
-  // window padding 4 + 4, .mine-main padding, field bevel 3 + 3
-  const chromeW = 8 + pad * 2 + 6;
+  // window padding 4 + 4, .mine-main padding, field bevel 3 + 3; plus the
+  // counters when they stand beside the board (short landscape phones)
+  let chromeW = 8 + pad * 2 + 6;
+  const main = win && win.querySelector('.mine-main');
+  const header = win && win.querySelector('.mine-header');
+  if (main && header && mineShown(win) && getComputedStyle(main).flexDirection === 'row') {
+    chromeW += header.offsetWidth + (parseFloat(getComputedStyle(main).columnGap) || 0);
+  }
   let chromeH = 140; // fallback before the window has a layout
   const field = document.getElementById('mine-field');
   if (win && field && mineShown(win)) {
@@ -541,8 +577,9 @@ function mineLayout() {
   const s = mineSpace(win);
   const cellW = Math.floor(s.w / mineCols), cellH = Math.floor(s.h / mineRows);
   let cell = Math.min(phone ? MINE_CELL_PHONE_MAX : MINE_CELL, cellW, cellH);
-  if (cell < MINE_CELL_MIN) {
-    // It cannot all be seen at a tappable size: fit the width and scroll down.
+  if (cell < MINE_CELL_FLOOR) {
+    // It cannot all be seen even at the smallest size: fit the width and
+    // scroll down. (A whole board at 16-19px beats scrolling a bigger one.)
     cell = Math.max(MINE_CELL_FLOOR, Math.min(MINE_CELL, cellW));
   }
 
@@ -640,7 +677,9 @@ function mineLCDSet(id, val) {
   if (el) el.textContent = String(Math.max(0, Math.min(999, val))).padStart(3, '0');
 }
 
-function mineSetFace(f) {
+function mineSetFace(name) {
   const btn = document.getElementById('mine-face-btn');
-  if (btn && btn.textContent !== f) btn.textContent = f;
+  if (!btn || btn.dataset.face === name) return;
+  btn.dataset.face = name;
+  btn.innerHTML = mineFaceSVG(name);
 }

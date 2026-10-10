@@ -61,8 +61,8 @@ const PAINT_HAS_COLOR_INPUT = (() => {
 
 const PAINT_MENUS = {
   file: [
-    { label: '<u>N</u>ew', run: () => paintNew() },
-    { label: '<u>O</u>pen...', key: 'Ctrl+O', run: () => paintOpenFile() },
+    { label: '<u>N</u>ew', run: () => paintConfirmSave(paintNew) },
+    { label: '<u>O</u>pen...', key: 'Ctrl+O', run: () => paintConfirmSave(paintOpenFile) },
     { label: '<u>S</u>ave', key: 'Ctrl+S', run: () => paintSave() },
     { label: 'Save <u>A</u>s...', run: () => paintSave() },
     null,
@@ -168,6 +168,7 @@ function buildPaintWindow(container) {
     fg: '#000000', bg: '#ffffff',
     mode: 'blank',      // 'blank': new picture (fills the window on phones); 'image': opened file
     dirty: false,       // anything drawn since New
+    edited: false,      // changed since New or Open (File > New asks to save)
     name: 'untitled',
     logicalW: PAINT_BLANK_W, logicalH: PAINT_BLANK_H,
     ratio: 1,           // backing pixels per picture pixel
@@ -403,6 +404,7 @@ function paintAdoptImage(name, retitle) {
 
   p.mode = 'image';
   p.dirty = true;
+  p.edited = false;
   paintRelease(p.store);
   p.store = null;
   paintClearUndo();
@@ -486,6 +488,7 @@ function paintLayout() {
   // Never resize under a stroke or an open text box; catch up afterwards.
   if (p.stroke || p.text) { p.layoutPending = true; return; }
   p.layoutPending = false;
+  paintFitToolbox();
   if (p.mode === 'blank') {
     if (isPhone()) {
       const a = paintArea();
@@ -495,6 +498,17 @@ function paintLayout() {
     }
   }
   paintSetDisplaySize();
+}
+
+// Phones: the tool box never scrolls. When the 2-column layout is taller than
+// the window (short screens, the Safari toolbar showing), it switches to a
+// compact one: 3 columns of tools over 2 columns of line widths (portrait),
+// or 6 columns beside the line widths (landscape). See css/apps/paint.css.
+function paintFitToolbox() {
+  const box = paint.container.querySelector('.paint-toolbox');
+  if (!box || !box.clientHeight) return; // hidden (View > Tool Box) or minimized: keep it as it is
+  box.classList.remove('paint-toolbox-compact');
+  if (isPhone() && box.scrollHeight > box.clientHeight + 1) box.classList.add('paint-toolbox-compact');
 }
 
 function paintSetTitle(title) {
@@ -771,7 +785,7 @@ function paintPointerDown(e) {
 
   if (p.tool === 'fill') {
     paintPushUndo();
-    if (paintFloodFill(pt.x, pt.y, color)) p.dirty = true;
+    if (paintFloodFill(pt.x, pt.y, color)) p.dirty = p.edited = true;
     else paintDropUndo();
     return;
   }
@@ -782,11 +796,11 @@ function paintPointerDown(e) {
 
   if (s.tool === 'pencil' || s.tool === 'brush' || s.tool === 'eraser') {
     paintPushUndo();
-    p.dirty = true;
+    p.dirty = p.edited = true;
     paintFreehand(pt, pt);
   } else if (s.tool === 'airbrush') {
     paintPushUndo();
-    p.dirty = true;
+    p.dirty = p.edited = true;
     paintSpray(pt, color);
     s.timer = setInterval(() => { if (p.stroke === s) paintSpray(s.last, color); }, 40);
   } else if (s.tool === 'curve') {
@@ -849,7 +863,7 @@ function paintPointerUp(e) {
     if (s.moved) {
       paintPushUndo();
       paintDrawShape(p.ctx, s.tool, s.start, pt, s.color, paintLineWidth());
-      p.dirty = true;
+      p.dirty = p.edited = true;
     }
   } else if (s.tool === 'curve') {
     paintCurveUp(s);
@@ -898,7 +912,7 @@ function paintCurveFinish() {
   paintClearOverlay();
   paintPushUndo();
   paintDrawCurve(p.ctx, c);
-  p.dirty = true;
+  p.dirty = p.edited = true;
 }
 
 // Polygon: drag the first side, then tap each corner. Tapping the first
@@ -923,7 +937,7 @@ function paintPolygonFinish() {
   paintClearOverlay();
   paintPushUndo();
   paintDrawPolygon(p.ctx, poly, null, poly.pts.length >= 3);
-  p.dirty = true;
+  p.dirty = p.edited = true;
 }
 
 // Text: tap to place a text box, type, then Enter or tap elsewhere.
@@ -967,7 +981,7 @@ function paintTextCommit() {
     p.ctx.font = `${Math.round(16 * k)}px "w95fa", "MS Sans Serif", Tahoma, sans-serif`;
     p.ctx.textBaseline = 'top';
     p.ctx.fillText(value, t.x + 2 * k, t.y + 2 * k);
-    p.dirty = true;
+    p.dirty = p.edited = true;
   }
   if (p.layoutPending) paintLayout();
 }
@@ -1036,6 +1050,7 @@ function paintNew() {
   paintCancelPending();
   p.mode = 'blank';
   p.dirty = false;
+  p.edited = false;
   paintRelease(p.store);
   p.store = null;
   p.name = 'untitled';
@@ -1052,7 +1067,7 @@ function paintClearImage() {
   p.ctx.fillRect(0, 0, c.width, c.height);
   paintRelease(p.store);
   p.store = null;
-  p.dirty = true;
+  p.dirty = p.edited = true;
 }
 
 function paintTransform(kind) {
@@ -1077,7 +1092,7 @@ function paintTransform(kind) {
   }
   paintRelease(p.store);
   p.store = null;
-  p.dirty = true;
+  p.dirty = p.edited = true;
 }
 
 function paintToggleView(part) {
@@ -1196,10 +1211,31 @@ function paintCloseMenu() {
   p.menu = null;
 }
 
-// Win95 information box inside the Paint window.
-function paintMessage(text) {
+// Win95 "Save changes to <name>?" before New or Open replaces a changed
+// picture: Yes saves (downloads a PNG) and goes on, No goes on, Cancel stops.
+function paintConfirmSave(then) {
   const p = paint;
   if (!p) return;
+  paintCommitPending();
+  if (!p.edited) { then(); return; }
+  paintMessage(`Save changes to ${p.name || 'untitled'}?`, {
+    icon: 'warn',
+    buttons: [
+      { label: '<u>Y</u>es', run: () => { paintSave(); then(); } },
+      { label: '<u>N</u>o', run: then },
+      { label: 'Cancel', run: null },
+    ],
+  });
+}
+
+// Win95 message box inside the Paint window: information (OK) by default,
+// or opts.buttons [{ label, run }] with opts.icon 'warn'. Escape and the
+// close button act as the last button (Cancel); Enter as the first.
+function paintMessage(text, opts) {
+  const p = paint;
+  if (!p) return;
+  const buttons = (opts && opts.buttons) || [{ label: 'OK', run: null }];
+  const warn = opts && opts.icon === 'warn';
   const old = p.container.querySelector('.paint-msg-backdrop');
   if (old) old.remove();
   const back = document.createElement('div');
@@ -1213,22 +1249,38 @@ function paintMessage(text) {
         </button>
       </div>
       <div class="paint-msg-body">
-        <svg class="paint-msg-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+        ${warn ? `<svg class="paint-msg-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16,2L30.5,29H1.5Z" fill="#ffff00" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+          <rect x="14.25" y="10" width="3.5" height="11" fill="#000"/>
+          <rect x="14.25" y="23" width="3.5" height="3.5" fill="#000"/>
+        </svg>` : `<svg class="paint-msg-icon" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
           <path d="M16,2C8,2,2,7.5,2,14c0,4,2.3,7.5,6,9.7L6,30l8-5c0.7,0.1,1.3,0.1,2,0.1c8,0,14-5.5,14-12S24,2,16,2Z" fill="#fff" stroke="#000" stroke-width="1"/>
           <circle cx="16" cy="8.5" r="2.2" fill="#0000ff"/>
           <rect x="14" y="12" width="4" height="10" fill="#0000ff"/>
-        </svg>
+        </svg>`}
         <p class="paint-msg-text"></p>
       </div>
-      <div class="paint-msg-footer"><button class="dialog-btn paint-msg-ok">OK</button></div>
+      <div class="paint-msg-footer">${buttons.map((b, i) =>
+        `<button class="dialog-btn paint-msg-btn${i === 0 ? ' paint-msg-ok' : ''}" data-i="${i}">${b.label}</button>`).join('')}</div>
     </div>`;
   back.querySelector('.paint-msg-text').textContent = text;
   p.container.appendChild(back);
-  const close = () => back.remove();
-  back.querySelector('.paint-msg-ok').addEventListener('click', close);
-  back.querySelector('.paint-msg-close').addEventListener('click', close);
+  const choose = i => {
+    back.remove();
+    const run = buttons[i] && buttons[i].run;
+    if (typeof run === 'function') run();
+  };
+  back.querySelector('.paint-msg-footer').addEventListener('click', e => {
+    const btn = e.target.closest('.paint-msg-btn');
+    if (btn) choose(+btn.dataset.i);
+  });
+  back.querySelector('.paint-msg-close').addEventListener('click', () => choose(buttons.length - 1));
   back.addEventListener('keydown', e => {
-    if (e.key === 'Escape' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); close(); }
+    if (e.key !== 'Escape' && e.key !== 'Enter') return;
+    e.preventDefault();
+    e.stopPropagation();
+    const btn = e.target.closest && e.target.closest('.paint-msg-btn');
+    choose(e.key === 'Escape' ? buttons.length - 1 : (btn ? +btn.dataset.i : 0));
   });
   back.querySelector('.paint-msg-ok').focus({ preventScroll: true });
 }
@@ -1247,7 +1299,7 @@ document.addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'z') paintUndo();
   else if (k === 's') paintSave();
-  else if (k === 'o') paintOpenFile();
+  else if (k === 'o') paintConfirmSave(paintOpenFile);
   else return;
   e.preventDefault();
 });

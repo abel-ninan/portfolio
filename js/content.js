@@ -28,7 +28,7 @@ const PORTFOLIO = {
     'Abel Ninan is a Data Analyst at <a href="https://www.cefcu.com" target="_blank" rel="noopener">CEFCU</a> and a graduate of Illinois State University, where he earned a B.S. in Business Information Systems with a minor in Data Analytics, chaired the Student Technology Advisory Committee and served on the university\'s Committee for the Responsible Use of Artificial Intelligence. Endlessly curious and a little obsessed with details, Abel loves taking messy, scattered data and turning it into decisions people can act on.',
     'His day-to-day toolkit is SQL, Power BI, Microsoft Fabric and SSIS, and he automates anything he has to do twice. The proof goes beyond the office: Abel designed, coded and shipped his own iOS app, <a href="https://apps.apple.com/us/app/hairmaxxx/id6758323696" target="_blank" rel="noopener">HairMaxxx</a>, to the App Store, and he builds multi-agent AI workflows that handle hours of research in minutes.',
     'He is a creator, too. Abel grew the history TikTok @historyslides to more than 500,000 followers and engineered an automated pipeline that takes a story from research to a finished, quality-checked video with a single command. Running it as a business gave him hands-on e-commerce experience, from storefront code to the numbers behind every sale.',
-    'And when he finally steps away from the keyboard? Abel has wrestled for more than 13 years as a team captain and state qualifier, and he now gives back as a volunteer wrestling coach at Normal Community High School. He also trains Brazilian Jiu-Jitsu and Muay Thai, so his competitive streak reaches well beyond the dashboard.'
+    'And when he finally steps away from the keyboard? Abel has wrestled for more than 13 years, earning team captain and state qualifier honors, and he now gives back as a volunteer wrestling coach at Normal Community High School. He also trains Brazilian Jiu-Jitsu and Muay Thai, so his competitive streak reaches well beyond the dashboard.'
   ],
 
   experience: [
@@ -53,7 +53,7 @@ const PORTFOLIO = {
       end: 'Jul. 2024',
       current: false,
       bullets: [
-        'Led a team to develop an Automatic Speech Recognition (ASR) for a speech-to-text application at Illinois State University, enhancing lecture transcriptions and meeting summaries.',
+        'Led a team to develop an Automatic Speech Recognition (ASR) system for a speech-to-text application at Illinois State University, enhancing lecture transcriptions and meeting summaries.',
         "Developed a web application using HTML, CSS and JavaScript that enables data transmission to a local SQL database, supporting the AI model's backend infrastructure.",
         'Deployed and fine-tuned a specialized Large Language Model to summarize textual content from meetings and lectures, employing cutting-edge NLP techniques to distill critical information from varied audio data sources.',
         'Configured and deployed a distributed computing setup using Dask in a Linux environment to enhance the performance of the speech-to-text AI model, enabling efficient processing of large audio datasets.'
@@ -63,7 +63,7 @@ const PORTFOLIO = {
       role: 'Secretary of Information Technology',
       company: 'Student Government Association',
       start: 'Aug. 2023',
-      end: 'May. 2024',
+      end: 'May 2024',
       current: false,
       bullets: [
         'Developed and maintained the Student Government Association website utilizing HTML and Omni CMS for efficient design and functionality.',
@@ -110,7 +110,7 @@ const PORTFOLIO = {
 
   skills: [
     { group: 'Data and BI', items: ['SQL Server', 'Power BI', 'DAX', 'Power Query', 'Microsoft Fabric', 'SSIS', 'Excel', 'Tableau', 'SPSS'] },
-    { group: 'Languages', items: ['Python', 'SQL', 'JavaScript', 'TypeScript', 'VB.Net', 'ASP.NET', 'HTML', 'CSS'] },
+    { group: 'Languages', items: ['Python', 'SQL', 'JavaScript', 'TypeScript', 'VB.NET', 'ASP.NET', 'HTML', 'CSS'] },
     { group: 'Data Engineering', items: ['PySpark', 'pandas', 'NumPy', 'Delta Lake', 'KQL', 'dbt', 'Apache Airflow', 'Snowflake', 'PostgreSQL'] },
     { group: 'AI and Automation', items: ['Claude API', 'Claude Code', 'Gemini API', 'Model Context Protocol (MCP)', 'Multi-agent workflows', 'LLM evaluation', 'Prompt engineering', 'Playwright', 'OpenCV', 'ffmpeg'] },
     { group: 'Web and Apps', items: ['React', 'Vite', 'Tailwind CSS', 'Capacitor (iOS)', 'Supabase', 'FastAPI', 'Shopify Hydrogen', 'GraphQL', 'RevenueCat'] },
@@ -154,7 +154,7 @@ const PORTFOLIO = {
       icon: 'img/icons/hairmaxx.png',
       summary: 'HairMaxxx turns a few guided selfies into a clear, structured hairline report. I built every layer myself, from the React app wrapped for iOS to the hardened backend that calls Google Gemini. Since its February 2026 launch it has shipped 23 builds and holds a 5.0-star App Store rating.',
       hero: {
-        src: 'img/projects/hairmaxx-overview.jpg',
+        src: 'img/projects/hairmaxx-overview.jpg', width: 1400, height: 502,
         alt: 'Six screens from the HairMaxxx iOS app shown side by side',
         caption: 'From guided selfies to a structured hairline report: six screens from the live app.'
       },
@@ -218,7 +218,7 @@ const PORTFOLIO = {
       icon: 'img/icons/leadgen.png',
       summary: 'A multi-agent workflow that finds active US trade businesses on Google Maps that have no website: the ideal call list for a web-design agency. About 110 AI agents work in three independent passes (Discover, Verify and Audit) so no agent ever grades its own work, and the output is a ranked, Maps-linked Excel workbook. Two runs delivered 136 verified leads.',
       hero: {
-        src: 'img/projects/leadgen-pipeline.svg',
+        src: 'img/projects/leadgen-pipeline.svg', width: 480, height: 686,
         alt: 'Pipeline diagram: Discover, Verify and Audit agent passes feeding a dedupe memory and an Excel lead workbook',
         caption: 'Three independent passes, so no agent grades its own work.'
       },
@@ -240,7 +240,7 @@ const PORTFOLIO = {
         {
           heading: 'How it works',
           steps: [
-            'Discover: about 60 agents run in parallel, one per trade and city search, collecting candidate listings that show no website.',
+            'Discover: about 60 discovery agents run in parallel across the trade and city searches, collecting candidate listings that show no website.',
             'Verify: about 35 agents open each place page, read the business facts, sort reviews newest first, and web-search for closures and any existing site.',
             'Audit: about 15 fresh agents independently re-check every surviving lead against the same bar, and any disagreement is flagged instead of silently resolved.',
             'Qualify: a lead ships only with no website proven three ways (listing card, place page including menu and booking links, and web search), at least 25 reviews and 4.0 stars, a newest review within 3 months, and at least 6 reviews in the last 12 months. Franchises and toll-free numbers are rejected.',
@@ -283,7 +283,7 @@ const PORTFOLIO = {
       icon: 'img/icons/historyslides.png',
       summary: 'I grew @historyslides on TikTok to 508.6K followers and 24.5M likes and run it as a content and e-commerce business. To publish at that level I engineered a production pipeline, about 36K lines of tested Python, that turns one command into a finished, quality-checked 1080x1920 vertical video.',
       hero: {
-        src: 'img/projects/historyslides-profile.jpg',
+        src: 'img/projects/historyslides-profile.jpg', width: 720, height: 576,
         alt: 'The @historyslides TikTok profile showing 508.6K followers and 24.5M likes',
         caption: '@historyslides on TikTok: 508.6K followers and 24.5M likes.'
       },
@@ -300,7 +300,7 @@ const PORTFOLIO = {
           paragraphs: [
             '@historyslides tells short, punchy stories from history with archival photographs and narration. Since 2023 it has grown to 508.6K followers and 24.5M likes; in 2026 its top post reached 3.78M views, with others at 2.73M and 2.19M.',
             'The account runs as a content and e-commerce business. On the commerce side I built a headless Shopify Hydrogen storefront with React Router 7 and Tailwind, typed Storefront API GraphQL queries with generated types, and wrote Admin API scripts that seed the product catalog.',
-            'Posting at that pace is a production problem, so I treated it like one. The pipeline finds its own topics, researches them, writes and voices the script, sources the images, edits and captions the video, and checks its own work. One command produces a finished 1080x1920, 30 fps, 60 to 70 second vertical video.'
+            'Publishing consistently is a production problem, so I treated it like one. The pipeline finds its own topics, researches them, writes and voices the script, sources the images, edits and captions the video, and checks its own work. One command produces a finished 1080x1920, 30 fps, 60 to 70 second vertical video.'
           ]
         },
         {
@@ -331,12 +331,12 @@ const PORTFOLIO = {
       stack: ['Python', 'faster-whisper', 'ElevenLabs', 'Playwright', 'OpenCV', 'Perceptual hashing (pHash/dHash)', 'LLM vision agents', 'ffmpeg', 'pytest', 'Buffer API', 'Shopify Hydrogen', 'React Router 7', 'Tailwind CSS', 'GraphQL', 'TypeScript'],
       images: [
         {
-          src: 'img/projects/historyslides-frame.jpg',
+          src: 'img/projects/historyslides-frame.jpg', width: 540, height: 960,
           alt: 'A rendered vertical video frame with an archival photo, a word-by-word caption and a watermark',
           caption: 'A finished 1080x1920 frame: archival photo, word-level caption and watermark.'
         },
         {
-          src: 'img/projects/historyslides-pipeline.svg',
+          src: 'img/projects/historyslides-pipeline.svg', width: 480, height: 724,
           alt: 'Diagram of the nine-stage video pipeline from topic discovery to QA',
           caption: 'Nine stages, from topic discovery to QA, with 11 auditors in a self-healing loop.'
         }
@@ -357,7 +357,7 @@ const PORTFOLIO = {
       icon: 'img/icons/deeplearners.png',
       summary: 'As an Artificial Intelligence Intern with Illinois State University\'s DeepLearners group, I led a student team that built an end-to-end system to turn lecture and meeting recordings into searchable transcripts and concise AI summaries. We fine-tuned a Whisper speech-recognition model on lecture audio, scaled transcription across a Dask cluster on Linux, fine-tuned a large language model to write structured summaries, and shipped it all behind a web app backed by a SQL database.',
       hero: {
-        src: 'img/projects/deeplearners-pipeline.svg',
+        src: 'img/projects/deeplearners-pipeline.svg', width: 480, height: 761,
         alt: 'Diagram of the pipeline from lecture audio through preprocessing, a Dask cluster, Whisper speech recognition and an LLM summarizer to a SQL database and web app',
         caption: 'From raw lecture audio to a searchable transcript and summary.'
       },
@@ -413,7 +413,7 @@ const PORTFOLIO = {
       icon: 'img/icons/marketpulse.png',
       summary: 'MarketPulse began as Stock-Predictor, a small Python script that forecast the next close from moving averages. I rebuilt it as an end-to-end Microsoft Fabric platform: live crypto trades streaming into an Eventhouse, a medallion Delta lakehouse for S&P 500 equities, an indicator and backtesting library, data-quality gates, and Direct Lake Power BI dashboards.',
       hero: {
-        src: 'img/projects/marketpulse-architecture.svg',
+        src: 'img/projects/marketpulse-architecture.svg', width: 480, height: 746,
         alt: 'Architecture diagram: Coinbase WebSocket and market-data REST API feeding Eventstream, Eventhouse and a bronze, silver and gold lakehouse that serves Power BI',
         caption: 'Streaming and batch paths meet in one gold star schema.'
       },
@@ -457,7 +457,7 @@ const PORTFOLIO = {
       stack: ['Microsoft Fabric', 'Eventstream', 'Eventhouse', 'KQL', 'Data Factory', 'OneLake', 'Delta Lake', 'PySpark', 'Spark SQL', 'pandas', 'NumPy', 'Great Expectations', 'Data Activator', 'Power BI', 'Direct Lake', 'DAX', 'Coinbase WebSocket API', 'REST APIs', 'Git'],
       images: [
         {
-          src: 'img/projects/marketpulse-dashboard.svg',
+          src: 'img/projects/marketpulse-dashboard.svg', width: 480, height: 559,
           alt: 'Power BI dashboard mockup with market overview tiles, a strategy equity curve and a correlation heatmap',
           caption: 'Direct Lake dashboards: market overview, strategy equity curves and correlations.'
         }
@@ -479,7 +479,7 @@ const PORTFOLIO = {
       icon: 'img/icons/creator-analytics.png',
       summary: 'A warehouse that connects every @historyslides post to the storefront activity it drives. Python extractors orchestrated by Airflow land raw data in Snowflake, dbt models it into tested marts, an LLM tags each caption by topic, and Power BI shows when to post and what to post about. The headline finding: evening posts earned a median of 711K views versus 7.5K in the morning.',
       hero: {
-        src: 'img/projects/creator-analytics-pipeline.svg',
+        src: 'img/projects/creator-analytics-pipeline.svg', width: 480, height: 568,
         alt: 'Pipeline diagram: Buffer, TikTok exports and Shopify feeding Airflow, Snowflake raw, staging and marts layers built by dbt, and Power BI',
         caption: 'Extract with Python, orchestrate with Airflow, model with dbt, serve with Power BI.'
       },
@@ -501,7 +501,7 @@ const PORTFOLIO = {
           heading: 'How it works',
           steps: [
             'Extract: Python extractors pull post metrics from the Buffer API and TikTok analytics exports, and orders, line items and products from the Shopify Admin API, incrementally by updated-at watermark.',
-            'Orchestrate: a daily Apache Airflow DAG runs the extractors, loads files into Snowflake RAW with COPY INTO, runs dbt build, tags new captions and refreshes the Power BI dataset, with retries and failure alerts.',
+            'Orchestrate: a daily Apache Airflow DAG runs the extractors, loads files into Snowflake RAW with COPY INTO, tags new captions, runs dbt build and refreshes the Power BI dataset, with retries and failure alerts.',
             'Model: dbt takes raw data to staging to marts, with incremental models for daily post metrics, snapshots that track product price changes as SCD Type 2, and a date and time-of-day dimension normalized to Eastern Time.',
             'Test: 64 dbt tests run on every build, including unique, not-null, relationship and accepted-value tests, source freshness, and a custom test that fails if a post\'s cumulative views ever decrease between loads.',
             'Enrich: an LLM classifies each caption into a fixed topic taxonomy with structured JSON output, and only new or edited captions are sent, keyed by a content hash.',
@@ -513,8 +513,8 @@ const PORTFOLIO = {
           bullets: [
             'Across 26 posts in 2026, posts published after 6 PM ET had a median of 711K views, compared with 7.5K for morning posts.',
             'Friday through Sunday posts earned a median of 176K views, compared with 33K Monday through Thursday.',
-            'With only 26 posts, I treated these as hypotheses and cross-checked them against Metricool\'s study of 2.3M posts, American Time Use Survey data on when people have free time, and Buffer\'s 11.4M-post study on posting frequency.',
-            'All three sources pointed the same way, so the findings became a concrete posting schedule.'
+            'With only 26 posts, I treated these as hypotheses and cross-checked the timing against Metricool\'s study of 2.3M posts and American Time Use Survey data on when people have free time; Buffer\'s 11.4M-post study on posting frequency set how often to post.',
+            'Both timing sources pointed the same way, so the findings became a concrete posting schedule.'
           ]
         },
         {
@@ -528,7 +528,7 @@ const PORTFOLIO = {
       stack: ['Python', 'Apache Airflow', 'Snowflake', 'dbt', 'SQL', 'Buffer API', 'Shopify Admin API', 'GraphQL', 'Claude API', 'Power BI', 'DAX', 'Docker'],
       images: [
         {
-          src: 'img/projects/creator-analytics-chart.svg',
+          src: 'img/projects/creator-analytics-chart.svg', width: 480, height: 457,
           alt: 'Chart comparing median views for evening and morning posts and for weekend and weekday posts',
           caption: 'Median views by posting window: evenings and weekends win by a wide margin.'
         }
@@ -549,7 +549,7 @@ const PORTFOLIO = {
       icon: 'img/icons/querypilot.png',
       summary: 'QueryPilot lets anyone ask a question in plain English and get back a correct, safe SQL answer with a chart. Behind the chat UI, an agent retrieves the right tables, writes SQL, validates it through an AST-level guardrail layer, executes it read-only and fixes its own mistakes. A 300-question golden set gates every pull request in CI.',
       hero: {
-        src: 'img/projects/querypilot-architecture.svg',
+        src: 'img/projects/querypilot-architecture.svg', width: 480, height: 821,
         alt: 'Architecture diagram: React chat UI streaming from a FastAPI agent that uses an MCP server, pgvector retrieval, sqlglot guardrails, Postgres and a Redis cache',
         caption: 'Plan, generate, validate, execute, self-correct, answer.'
       },
@@ -573,7 +573,7 @@ const PORTFOLIO = {
           steps: [
             'Retrieve: table and column descriptions plus sample values are embedded and stored in Postgres with pgvector; each question pulls the top matching tables, expanded along foreign-key join paths, so the prompt holds about 6 relevant tables instead of 42.',
             'Plan and generate: the agent drafts a short plan, then writes SQL using MCP tools: list_schemas, describe_table, run_readonly_query and explain_query.',
-            'Validate: sqlglot parses the query to an AST and enforces a single read-only SELECT, injects or clamps a LIMIT, masks PII columns, and runs EXPLAIN to reject queries over a cost threshold.',
+            'Validate: sqlglot parses the query to an AST and enforces a single read-only SELECT, injects or clamps a LIMIT and masks PII columns; the validator then runs EXPLAIN on Postgres to reject queries over a cost threshold.',
             'Execute and self-correct: the query runs under a read-only role with a statement timeout; on any error or validator rejection, the message is fed back and the agent retries up to 3 times.',
             'Answer: the result streams to the React and TypeScript chat UI over Server-Sent Events with the SQL, a results table and a declarative chart spec.'
           ]
@@ -592,9 +592,9 @@ const PORTFOLIO = {
       stack: ['Python', 'FastAPI', 'React', 'TypeScript', 'Server-Sent Events', 'Model Context Protocol (MCP)', 'Claude API', 'PostgreSQL', 'pgvector', 'sqlglot', 'Redis', 'Docker', 'Azure Container Apps', 'OpenTelemetry', 'GitHub Actions', 'pytest', 'Playwright'],
       images: [
         {
-          src: 'img/projects/querypilot-demo.svg',
-          alt: 'QueryPilot chat demo showing a plain-English question, the generated SQL, a results table and a bar chart',
-          caption: 'A question in, validated SQL, a table and a chart out.'
+          src: 'img/projects/querypilot-demo.svg', width: 480, height: 589,
+          alt: 'QueryPilot chat demo showing a plain-English question, the generated SQL, a ranked results table and a one-line answer',
+          caption: 'A question in, validated SQL and a ranked table out.'
         }
       ],
       links: [

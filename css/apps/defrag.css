@@ -72,6 +72,31 @@
   flex-shrink: 0;
 }
 .defrag-btn { width: 90px; }
+
+/* Hide Details: the block map is gone and the window shrinks to the controls */
+.defrag-no-details .defrag-scroll-row { display: none; }
+.defrag-no-details { height: auto; }
+
+/* Legend message box (js/apps/defrag.js) */
+.defrag-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.defrag-legend li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.defrag-legend-block {
+  width: 9px;
+  height: 12px;
+  flex-shrink: 0;
+  outline: 1px solid #000;
+}
 .defrag-viewport { touch-action: none; } /* dragged by finger to scroll */
 
 /* Phones: the buttons wrap under the progress bar when the window is too

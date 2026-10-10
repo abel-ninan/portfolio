@@ -417,4 +417,72 @@
   }
 
   ::-webkit-scrollbar-corner { background-color: var(--c-gray-200); box-shadow: var(--shadow-raised); }
+
+  /* Phone layout in a narrow desktop window: Win95's own 16px size, so the
+     32px bars never crowd a small dialog or Paint's tool column. */
+  body.is-phone ::-webkit-scrollbar { width: 16px; height: 16px; min-height: 16px; }
+  body.is-phone ::-webkit-scrollbar-button { width: 16px; height: 16px; background-size: 8px; }
+}
+
+/* ════════════════════════════════
+   MESSAGE BOX  (showMessageBox in js/dialog.js)
+   Uses the normal window chrome, so phones get the big title-bar buttons.
+   ════════════════════════════════ */
+.msgbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.msgbox.window {
+  position: relative;
+  width: auto; /* sized to its text, like Win95 */
+  max-width: min(420px, 100%);
+  max-height: 100%;
+  min-width: min(260px, 100%);
+  min-height: 0;
+  z-index: auto;
+  overflow: auto;
+}
+.msgbox .window-titlebar {
+  background: var(--c-header); /* always the active box */
+  cursor: url('../img/cursor-default.png') 0 0, default;
+  touch-action: auto;
+}
+.msgbox-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 12px 12px;
+  font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.msgbox-icon { flex-shrink: 0; }
+.msgbox-text {
+  flex: 1;
+  min-width: 0;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.msgbox-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 8px 8px;
+}
+body.is-phone .msgbox-body { font-size: 15px; }
+body.is-phone .msgbox-btn { min-width: 90px; }
+
+/* Keyboard focus on dialog buttons: the Win95 dotted rectangle, not the
+   browser's blue ring. */
+.dialog-btn:focus { outline: none; }
+.dialog-btn:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -5px;
 }

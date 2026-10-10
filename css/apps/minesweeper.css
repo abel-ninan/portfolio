@@ -3,6 +3,10 @@
    ════════════════════════════════ */
 /* Window body: menubar, then counters and board. The board shrinks and
    scrolls when the window is capped (phones), never the counters. */
+/* Room for the whole title in the narrow Beginner window */
+#win-minesweeper .window-title { margin: 0 1px 0 2px; }
+#win-minesweeper .window-controls { margin-left: 0; }
+
 .mine-body {
   display: flex;
   flex-direction: column;
@@ -75,6 +79,12 @@
 .mine-flag-btn:active {
   box-shadow: var(--shadow-btn-active);
 }
+.mine-face {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+.mine-face-btn:active .mine-face { transform: translate(1px, 1px); }
 /* Flag mode: only on touch screens (right-click flags with a mouse) */
 .mine-flag-btn {
   display: none;
@@ -222,3 +232,21 @@ body.is-phone .mine-menu-item {
   cursor: pointer;
 }
 body.is-phone .mine-menu-check { width: 26px; }
+body.is-phone .mine-face { width: 32px; height: 32px; }
+
+/* Landscape phones with the browser bars showing: the counters and the
+   smiley stand in a column beside the board, so Beginner fits without
+   scrolling (js/apps/minesweeper.js mineSpace() measures this). */
+@media (orientation: landscape) and (max-height: 420px) {
+  body.is-phone .mine-main {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  body.is-phone .mine-header {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 6px 5px;
+  }
+  body.is-phone .mine-header-mid { flex-direction: column; }
+}

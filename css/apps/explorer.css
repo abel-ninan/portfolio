@@ -77,3 +77,10 @@
   background: #fff;
 }
 /* Phone / narrow-screen rules live in css/mobile.css */
+
+/* Recycle Bin rows restore with one click / tap (js/desktop.js) */
+.recycle-row { cursor: pointer; }
+.recycle-row:hover,
+.recycle-row:focus-visible { background: #000080; color: #fff; outline: none; }
+.recycle-row:hover div,
+.recycle-row:focus-visible div { color: #fff !important; }

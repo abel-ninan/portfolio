@@ -82,6 +82,7 @@
   src: url("../fonts/FSEX300.woff") format("woff");
   font-weight: normal;
   font-style: normal;
+  font-display: swap; /* 146 KB: show Bio and Notepad text in the fallback until it arrives */
 }
 @font-face {
   font-family: "w95fa";

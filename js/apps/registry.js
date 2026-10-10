@@ -1,8 +1,11 @@
 // ════════════════════════════════
 //  WINDOW DEFINITIONS
 // ════════════════════════════════
-// dialog: true  small box window; on phones it stays a centered box sized to
-//               its content instead of opening full-screen (js/windows.js)
+// dialog: true    small box window; on phones it stays a centered box sized
+//                 to its content instead of opening full-screen (js/windows.js)
+// closeOnly: true the title bar has only Close (Win95 dialogs)
+// noResize: true  fixed size: no resize grip, Maximize shown greyed out
+// taskbarTitle    shorter taskbar label on phones, where the buttons are narrow
 
 // Icons for the portfolio windows (title bar and taskbar use ICONS[def.icon]).
 Object.assign(ICONS, {
@@ -23,24 +26,28 @@ const WINDOW_DEFS = {
   },
   files: {
     title: 'My Files',
+    taskbarTitle: 'Files',
     width: 520, height: 380,
     icon: 'files',
     build: buildFilesWindow,
   },
   projects: {
     title: 'My Projects',
-    width: 450, height: 380,
+    taskbarTitle: 'Projects',
+    width: 560, height: 380,
     icon: 'projects',
     build: buildProjectsFolderWindow,
   },
   resume: {
     title: 'Resume.doc - WordPad',
+    taskbarTitle: 'Resume',
     width: 720, height: 600,
     icon: 'resume',
     build: buildResumeWindow,
   },
   contact: {
     title: 'New Message',
+    taskbarTitle: 'Contact',
     width: 560, height: 480,
     icon: 'contact',
     build: buildContactWindow,
@@ -53,6 +60,7 @@ const WINDOW_DEFS = {
   },
   ie: {
     title: 'Internet Explorer',
+    taskbarTitle: 'Internet',
     width: 800, height: 580,
     icon: 'ie',
     build: buildIEWindow,
@@ -62,33 +70,39 @@ const WINDOW_DEFS = {
     width: 480, height: 380,
     icon: 'welcome',
     dialog: true,
+    closeOnly: true,
     noIcon: true,
     noResize: true,
     build: buildWelcomeWindow,
   },
   shutdown: {
     title: 'Shut Down Windows',
+    taskbarTitle: 'Shut Down',
     width: 374, height: 215,
     icon: 'shutdown',
     dialog: true,
+    closeOnly: true,
     noIcon: true,
     noResize: true,
     build: buildShutdownWindow,
   },
   notepad: {
-    title: 'Notepad - Untitled',
+    title: 'Untitled - Notepad',
+    taskbarTitle: 'Notepad',
     width: 430, height: 320,
     icon: 'notepad',
     build: buildNotepadWindow,
   },
   bio: {
-    title: 'Notepad - Abel Ninan Bio',
+    title: 'Abel Ninan Bio - Notepad',
+    taskbarTitle: 'Bio',
     width: 540, height: 440,
     icon: 'notepad',
     build: buildBioWindow,
   },
   certifications: {
-    title: 'Notepad - Certifications.txt',
+    title: 'Certifications.txt - Notepad',
+    taskbarTitle: 'Certifications',
     width: 460, height: 440,
     icon: 'notepad',
     build: buildCertificationsWindow,
@@ -122,6 +136,7 @@ const WINDOW_DEFS = {
     width: 360, height: 185,
     icon: 'run',
     dialog: true,
+    closeOnly: true,
     noResize: true,
     build: buildRunWindow,
     getPos: (dw, dh, w, h) => ({ x: 10, y: dh - h - 10 }),
@@ -136,6 +151,7 @@ const WINDOW_DEFS = {
   },
   defrag: {
     title: 'Defragmenting Drive C',
+    taskbarTitle: 'Defrag',
     width: 660, height: 510,
     icon: 'defrag',
     noResize: true,
@@ -152,6 +168,7 @@ const WINDOW_DEFS = {
   },
   msdos: {
     title: 'MS-DOS Prompt',
+    taskbarTitle: 'MS-DOS',
     width: 560, height: 400,
     icon: 'msdos',
     build: buildMsdosWindow,
@@ -179,6 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
   registerTapAction('shutdown', () => showShutdown());
   registerTapAction('open-image', el => openImageInPaint(el.dataset.src, el.dataset.name));
   registerTapAction('project-nav', el => switchProjectWindow(el.dataset.from, el.dataset.to));
+  registerTapAction('drive-not-ready', el => showDriveNotReady(el.dataset.drive));
+  registerTapAction('cpl-unavailable', el => showMessageBox({
+    id: 'cpl-info', title: 'Control Panel', owner: 'controlpanel',
+    text: `${el.dataset.name} settings are not available in this version of Windows.`,
+  }));
+  registerTapAction('recycle-restore', el => restoreRecycledIcon(el.dataset.id));
 });
 
 // Leaf Start menu items close the menu once the opener in js/desktop.js has

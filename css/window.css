@@ -101,6 +101,14 @@
 .win-btn:active svg {
   transform: translate(1px, 1px);
 }
+/* Greyed-out button (Maximize on fixed-size windows): embossed grey glyph */
+.win-btn:disabled { cursor: url('../img/cursor-default.png') 0 0, default; }
+.win-btn:disabled:active { box-shadow: inset -1px -1px 0px #000000, inset 1px 1px 0px #ffffff, inset -2px -2px 0px #818181; }
+.win-btn:disabled img { filter: invert(50%) drop-shadow(1px 1px 0 #ffffff); }
+
+/* Shut Down is system-modal: it sits above its backdrop, which dims the
+   whole screen, taskbar included (js/dialog.js showShutdown). */
+#win-shutdown { z-index: 10002 !important; }
 .win-btn-close { width: 22px; margin-left: 2px; }
 .win-btn-minimize {
   background-image: url('../img/minimize-btn.png');
@@ -120,13 +128,19 @@
 }
 .menu-item {
   padding: 2px 7px;
-  cursor: pointer;
+  cursor: inherit; /* decorative menubars do not pretend to open */
   font-size: 16px;
   font-weight: normal;
   font-family: "w95fa", 'MS Sans Serif', Tahoma, sans-serif;
   border: 1px solid transparent;
 }
-.menu-item:hover {
+/* Menus that really open: Paint, Internet Explorer, Minesweeper */
+.menu-item[data-paint-menu],
+.menu-item[data-ie-menu],
+#mine-game-btn { cursor: pointer; }
+.menu-item[data-paint-menu]:hover,
+.menu-item[data-ie-menu]:hover,
+#mine-game-btn:hover {
   background-color: #000080;
   color: #fff;
 }

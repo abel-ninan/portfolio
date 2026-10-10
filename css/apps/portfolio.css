@@ -773,6 +773,15 @@ body.is-phone .wl-body { font-size: 14px; line-height: 1.5; }
   body.is-phone .wl-photo { width: 100px; height: 100px; }
   body.is-phone .wl-box { gap: 6px; padding: 8px 10px; }
 }
+/* Landscape phones with the browser bars showing: a wider box with the
+   photo beside the text, so Close is on screen without scrolling. */
+@media (orientation: landscape) and (max-height: 420px) {
+  body.is-phone #win-welcome { width: min(600px, calc(100% - 16px)) !important; }
+  body.is-phone .wl-header { padding: 6px 12px 4px; }
+  body.is-phone .wl-box { flex-direction: row; align-items: flex-start; gap: 10px; }
+  body.is-phone .wl-photo { width: 96px; height: 96px; }
+  body.is-phone .wl-gap { height: 8px; }
+}
 
 /* Photos and diagrams inside windows are not draggable (no ghost image
    following the cursor or finger). Desktop icons keep their own drag. */

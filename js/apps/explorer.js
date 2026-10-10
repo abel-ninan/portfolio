@@ -77,24 +77,38 @@ function buildPhotosWindow(container) {
   ]);
 }
 
+// The empty drives answer like Win95 with no disk in them; C: holds My Files.
+// (Tap actions are registered in js/apps/registry.js.)
 function buildComputerWindow(container) {
   buildFolderWindow(container, [
-    { name: 'Floppy (A:)',     icon: ICONS.floppy },
-    { name: 'Local Disk (C:)', icon: ICONS.drive },
-    { name: 'CD-ROM (D:)',     icon: ICONS.cdrom },
+    { name: 'Floppy (A:)',     icon: ICONS.floppy, action: 'drive-not-ready', data: { drive: 'A' } },
+    { name: 'Local Disk (C:)', icon: ICONS.drive, open: 'files' },
+    { name: 'CD-ROM (D:)',     icon: ICONS.cdrom, action: 'drive-not-ready', data: { drive: 'D' } },
     { name: 'My Files',        icon: ICONS.files, open: 'files' },
     { name: 'Control Panel',   icon: ICONS.controlPanel, open: 'controlpanel' },
   ]);
 }
 
 function buildControlPanelWindow(container) {
+  const applet = (name, icon) => ({ name, icon, action: 'cpl-unavailable', data: { name } });
   buildFolderWindow(container, [
-    { name: 'Display',  icon: 'img/my-computer.png' },
-    { name: 'Fonts',    icon: 'img/notepad.png' },
-    { name: 'Internet', icon: 'img/internet-explorer.png' },
-    { name: 'Mouse',    icon: 'img/my-computer.png' },
-    { name: 'Sounds',   icon: 'img/speaker.png' },
+    applet('Display',  'img/my-computer.png'),
+    applet('Fonts',    'img/notepad.png'),
+    applet('Internet', 'img/internet-explorer.png'),
+    applet('Mouse',    'img/my-computer.png'),
+    applet('Sounds',   'img/speaker.png'),
   ]);
+}
+
+function showDriveNotReady(drive) {
+  showMessageBox({
+    id: 'drive-error',
+    title: drive + ':\\',
+    icon: 'error',
+    owner: 'computer',
+    text: `${drive}:\\ is not accessible.\n\nThe device is not ready.`,
+    buttons: [{ label: '<u>R</u>etry', run: () => setTimeout(() => showDriveNotReady(drive), 150) }, { label: 'Cancel' }],
+  });
 }
 
 // My Projects: one icon per project in PORTFOLIO.projects; the status bar
@@ -120,8 +134,10 @@ function buildRecycleWindow(container) {
   const colStyle = `flex:1;padding:2px 6px;font-size:11px;font-family:'w95fa','MS Sans Serif',Tahoma,sans-serif;border:2px solid;border-top-color:var(--c-border-lightest);border-left-color:var(--c-border-lightest);border-bottom-color:var(--c-border-dark);border-right-color:var(--c-border-dark);cursor:default;`;
   const rowStyle = `display:flex;align-items:center;padding:2px 0;border-bottom:1px solid #e0e0e0;font-size:13px;font-family:'w95fa','MS Sans Serif',Tahoma,sans-serif;`;
   const items = typeof recycleBinItems !== 'undefined' ? recycleBinItems : [];
+  // One click / tap on a row restores it to the desktop (restoreRecycledIcon).
   const rows = items.map(item => `
-    <div style="${rowStyle}">
+    <div class="recycle-row" style="${rowStyle}" data-action="recycle-restore" data-id="${escapeHTML(item.id)}"
+         role="button" tabindex="0" title="Restore to the desktop" aria-label="Restore ${escapeHTML(item.name)} to the desktop">
       <div style="flex:1;display:flex;align-items:center;gap:6px;padding:0 6px;min-width:0;">
         <img src="${escapeHTML(item.src)}" alt="" style="width:16px;height:16px;image-rendering:pixelated;flex-shrink:0;">
         <span style="overflow-wrap:anywhere;">${escapeHTML(item.name)}</span>
@@ -140,7 +156,7 @@ function buildRecycleWindow(container) {
       </div>
     </div>
     <div class="status-bar">
-      <span class="status-item">${items.length} object(s)</span>
+      <span class="status-item">${items.length} object(s)${items.length ? ` &middot; ${isPhone() ? 'Tap' : 'Click'} one to restore it` : ''}</span>
       <div class="status-resize-slot"></div>
     </div>
   `;

@@ -626,7 +626,7 @@ function iePageHtml(kind, url) {
     title = 'About Internet Explorer';
     intro = 'This window is a working web browser. Type an address, or any words to search Google, in the Address bar and press <b>Go</b>.';
     tips = [
-      'Some sites (GitHub, LinkedIn, YouTube and others) do not allow being shown inside another window. Use <b>File &gt; Open in New Window</b> or the <b>New Window</b> button to view them in a real browser tab.',
+      'Some sites (GitHub, LinkedIn, YouTube and others) do not allow being shown inside another window. Use <b>File &gt; Open in New Window</b> or the <b><span class="ie-lbl-full">New Window</span><span class="ie-lbl-short">Open</span></b> button to view them in a real browser tab.',
       'Links you follow inside a page are not shown in the Address bar.',
     ];
     foot = 'Internet Explorer';

@@ -25,15 +25,18 @@
   border: none;
   box-shadow: none;
   background-color: transparent;
-  background-image: url(../img/start-btn.png);
+  /* The pressed image sits under the (opaque) normal one, so it is already
+     loaded the first time the button is pressed. */
+  background-image: url(../img/start-btn.png), url(../img/start-btn-down.png);
   background-size: 87px 32px;
   background-repeat: no-repeat;
   cursor: pointer;
   flex-shrink: 0;
   image-rendering: pixelated;
 }
+/* Pressed (menu open): the sunken Win95 bevel, label shifted 1px */
 #start-btn.pressed {
-  filter: brightness(0.85);
+  background-image: url(../img/start-btn-down.png);
 }
 
 /* Taskbar separator */
@@ -94,6 +97,11 @@
   white-space: nowrap;
   min-width: 0;
 }
+/* Phones: a short label (WINDOW_DEFS[type].taskbarTitle) so a crowded
+   taskbar still tells My Projects from My Files (js/taskbar.js). */
+.taskbar-btn .tb-short { display: none; }
+body.is-phone .taskbar-btn .tb-long { display: none; }
+body.is-phone .taskbar-btn .tb-short { display: inline; }
 
 /* Systray speaker icon */
 #systray-speaker {
