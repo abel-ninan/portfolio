@@ -20,7 +20,7 @@ const PORTFOLIO = {
 
   welcome: {
     headline: "Welcome to Abel Ninan's Windows 95 portfolio.",
-    body: "I'm a data analyst who builds apps, data pipelines and AI workflows. Click around: every icon opens with a single tap."
+    body: "I'm a data analyst who builds apps, data pipelines and AI workflows."
   },
 
   // Notepad "Abel Ninan Bio": 4 paragraphs, trusted HTML (inline links only)

@@ -27,7 +27,6 @@ function buildWelcomeWindow(container) {
 
         <!-- Right: buttons -->
         <div class="wl-buttons">
-          <button class="dialog-btn wl-btn" data-open="contact"><u>O</u>nline Registration</button>
           <div class="wl-spacer"></div>
           <div class="wl-sep"></div>
           <div class="wl-gap"></div>
